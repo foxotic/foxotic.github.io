@@ -1,0 +1,94 @@
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-arrows-yes .elementor-main-swiper{width:calc( 75% - 40px );}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-main-swiper{width:75%;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-testimonial--layout-image_inline .elementor-testimonial__footer,
+					.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-testimonial--layout-image_stacked .elementor-testimonial__footer{margin-top:0px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-testimonial--layout-image_above .elementor-testimonial__footer{margin-bottom:0px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-testimonial--layout-image_left .elementor-testimonial__footer{padding-right:0px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.elementor-testimonial--layout-image_right .elementor-testimonial__footer{padding-left:0px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__name{color:#FFFFFF;font-family:"Roboto", Sans-serif;font-weight:600;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__image img{border-radius:0px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-swiper-button{font-size:20px;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-pagination-bullet:not(.swiper-pagination-bullet-active){background-color:#FFFFFF;opacity:1;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-pagination-bullet-active, .elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-pagination-progressbar-fill{background-color:#FFFFFF;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-pagination-fraction{color:#FFFFFF;}.elementor-1046 .elementor-element.elementor-element-6b8fb6ca > .elementor-widget-container{margin:-235px -425px -235px -235px;padding:0px 0px 0px 0px;}/* Start custom CSS for testimonial-carousel, class: .elementor-element-6b8fb6ca */.elementor-1046 .elementor-element.elementor-element-6b8fb6ca{
+    --radius: 8px;
+    --height: 400px;
+    --active-height: 450px;
+    --overlay: 0.2;
+    --min-width: 300px; 
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca{
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.8s ease-in-out;
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.loaded{
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-wrapper{
+    height: var(--active-height);
+    align-items: center;
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-slide{
+    display: flex;
+    align-items: flex-end;
+    border-radius: var(--radius);
+    height: var(--height);
+    flex: 1 1 auto;
+    min-width: var;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+}
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca.loaded .swiper-slide{
+    transition: all 0.3s ease-in-out 0.2s;
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-slide.swiper-slide-active{
+    height: var(--active-height);
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .swiper-slide:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgb(0,0,0);
+    background: linear-gradient(20deg, rgba(0,0,0,var(--overlay)) 0%, rgba(0,0,0,0) 100%);
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__footer{
+    display: block;
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: var(--radius);
+}
+
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__cite{
+    z-index: 2;
+    position: relative;
+}
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__name{
+    margin-bottom: 5px;
+}
+
+
+@media (max-width: 1024px){
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca{
+    --height: 180px;
+    --active-height: 250px;
+    --min-width: 200px;
+}
+}
+
+@media (max-width: 767px){
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca{
+    --height: 80px;
+    --active-height: 105px;
+    --min-width: 100px;
+}
+.elementor-1046 .elementor-element.elementor-element-6b8fb6ca .elementor-testimonial__cite{
+    opacity: 0;
+}
+}/* End custom CSS */
