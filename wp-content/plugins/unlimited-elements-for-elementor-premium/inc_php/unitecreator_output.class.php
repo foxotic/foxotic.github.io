@@ -1481,7 +1481,6 @@ class UniteCreatorOutputWork extends HtmlOutputBaseUC{
 			$arrItemData = $this->putDebugDataHtml_getItemsFromListing($paramListing, $arrData);
 		}
 		
-		
 		switch($this->debugDataType){
 			case "post_titles":
 			case "post_meta":
@@ -1933,7 +1932,6 @@ class UniteCreatorOutputWork extends HtmlOutputBaseUC{
 			
 			switch($attributeType){
 				
-				case "schema":
 				case "entrance_animation":
 					
 					$param["modify_type"] = $attributeType;
@@ -1969,12 +1967,6 @@ class UniteCreatorOutputWork extends HtmlOutputBaseUC{
 					
 					$css = "{{ucfunc(\"put_entrance_animation_css\",\"{$name}\")}}\n\n".$css;
 					$js = "{{ucfunc(\"put_entrance_animation_js\",\"{$name}\")}}\n\n".$js;
-					
-					$isModify = true;
-				break;
-				case "schema":
-										
-					$html .= "{{ucfunc(\"put_schema_items_json_byparam\",\"{$name}\")}}\n\n";
 					
 					$isModify = true;
 				break;
@@ -2047,7 +2039,7 @@ class UniteCreatorOutputWork extends HtmlOutputBaseUC{
 			
 			$this->objTemplate->setParams($arrData);
 		}
-		else{		//items exists
+		else{
 						
 			if($this->processType == UniteCreatorParamsProcessor::PROCESS_TYPE_CONFIG)
 				$arrItemData = array();
@@ -2121,29 +2113,18 @@ class UniteCreatorOutputWork extends HtmlOutputBaseUC{
 					$paramName = UniteFunctionsUC::getVal($paramListing, "name");
 					
 					$dataValue = UniteFunctionsUC::getVal($arrData, $paramName);
-										
+					
 					if(is_string($dataValue) && $dataValue === "uc_items")
 						$arrItemData = $this->addon->getProcessedItemsData($this->processType);
-					elseif(is_array($dataValue)){
+					
 						
-						$arrItemData = $dataValue;
-					}else{
-						
-						dmp($arrItemData);
-						UniteFunctionsUC::throwError("Wrong multisouce data");
-					}
-										
 				break;
 				default:
 					
 					$arrItemData = $this->addon->getProcessedItemsData($this->processType);
 				break;
 			}
-			
-			//some small protection
-			if(empty($arrItemData))
-				$arrItemData = array();
-			
+						
 			$itemIndex = 0;
 			foreach($arrItemData as $key=>$item){
 			    

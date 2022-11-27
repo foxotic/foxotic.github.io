@@ -1620,10 +1620,9 @@ function UniteCreatorElementorEditorAdmin(){
 		
 		//elementorFrontend.hooks.addAction( 'frontend/element_ready/global', onFrontElementReady); 
 		
-		if(typeof elementorFrontend != "undefined"){
-			elementorFrontend.hooks.addAction( 'frontend/element_ready/section', onFrontElementReady); 
-			elementorFrontend.hooks.addAction( 'frontend/element_ready/container', onFrontElementReady); 
-		}
+		elementorFrontend.hooks.addAction( 'frontend/element_ready/section', onFrontElementReady); 
+		elementorFrontend.hooks.addAction( 'frontend/element_ready/container', onFrontElementReady); 
+		
 	}
 
 	/**
@@ -1688,9 +1687,6 @@ function UniteCreatorElementorEditorAdmin(){
 	 * for section background etc
 	 */
 	this.initFrontEndInteraction = function(windowFront, elementorFrontend){
-		
-		if(typeof elementorFrontend == "undefined")
-			return(false);
 		
 		//wait for full load of front end object
 		if(typeof elementorFrontend.hooks == "undefined"){

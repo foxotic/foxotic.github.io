@@ -53,9 +53,6 @@ class UniteCreatorPluginIntegrations{
 		if(is_array($cat))
 			$cat = $cat[0];
 		
-		if($cat == "all")
-			$cat = null;
-		
 		$params = array();
 		$params["post_type"] = $postType;
 		$params["limit"] = $limit;

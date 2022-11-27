@@ -568,12 +568,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 	    		$entries[$name]['_dataStart'] = $lfhStart + 30 + $info['Length'] + $info['ExtraLength'];
 	    
 	    		// Bump the max execution time because not using the built in php zip libs makes this process slow.
-	    		
-	    		$maxTime = ini_get('max_execution_time');
-	    		
-	    		if(!empty($maxTime) && is_numeric($maxTime))
-	    			@set_time_limit($maxTime);
-	    		
+	    		@set_time_limit(ini_get('max_execution_time'));
 	    	}
 	    	while ((($fhStart = strpos($data, $this->_ctrlDirHeader, $fhStart + 46)) !== false));
 	    	

@@ -34,7 +34,6 @@ class GlobalsProviderUC{
 	public static $lastPostQuery_paginationType = null;
 	public static $skipRunPostQueryOnce = false;
 	public static $lastQueryArgs = null;
-	public static $isUnderAjaxSearch = false;
 	
 	public static $arrTestTermIDs = null;	//test term id's for render taxonomies under ajax
 	

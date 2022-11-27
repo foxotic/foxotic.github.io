@@ -622,7 +622,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			$urlRelative = self::URLtoRelative($url);
 			$path = GlobalsUC::$path_base.$urlRelative;
-			
 			if(file_exists($path) == false)
 				return(null);
 			
@@ -1698,19 +1697,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			return($urlPreview);
 		}
-		
-		
-		/**
-		 * check if elementor pro active
-		 */
-		public static function isElementorProActive(){
-			
-			if(defined("ELEMENTOR_PRO_VERSION"))
-				return(true);
-		
-			return(false);
-		}
-		
 		
 	    /**
 	     * check if edit mode

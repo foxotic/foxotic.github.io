@@ -196,14 +196,6 @@ class UniteCreatorParamsProcessorWork{
 		return($data);
 	}
 
-	/**
-	 * get the addon
-	 */
-	public function getAddon(){
-		
-		return($this->addon);
-	}
-	
 	private function a________RADIO_BOOLEAN_________(){}
 	
 	
@@ -808,7 +800,7 @@ class UniteCreatorParamsProcessorWork{
 	 * add image attributes
 	 */
 	private function addImageAttributes($data, $name, $param){
-		
+				
 		$addImageSizes = UniteFunctionsUC::getVal($param, "add_image_sizes");
 		$addImageSizes = UniteFunctionsUC::strToBool($addImageSizes);
 		
@@ -923,7 +915,7 @@ class UniteCreatorParamsProcessorWork{
 	 * @param  $param
 	 */
 	protected function getProcessedParamsValue_image($data, $value, $param){
-		
+				
 		$mediaType = UniteFunctionsUC::getVal($param, "media_type");
 		
 		$name = $param["name"];
@@ -947,7 +939,6 @@ class UniteCreatorParamsProcessorWork{
 			if(empty($value))
 				return($data);
 		}
-
 		
 		$urlImage = $value;		//in case that the value is image id
 		if(is_numeric($value)){
@@ -1089,7 +1080,7 @@ class UniteCreatorParamsProcessorWork{
 	/**
 	 * get instagram data
 	 */
-	public function getInstagramData($value, $name, $param){
+	protected function getInstagramData($value, $name, $param){
 		
 		try{
 			
@@ -1564,7 +1555,7 @@ class UniteCreatorParamsProcessorWork{
 	/**
 	 * get menu data
 	 */
-	public function getWPMenuData($data, $value, $name, $param, $processType){
+	protected function getWPMenuData($data, $value, $name, $param, $processType){
 		dmp("function for override");
 		exit();
 	}
@@ -1576,7 +1567,6 @@ class UniteCreatorParamsProcessorWork{
 	protected function getSliderData_work($data, $value, $name, $valueOnly = false){
 		
 		if(is_array($value) == false){
-						
 			$data[$name."_unit"] = "px";
 			$data[$name."_nounit"] = $value;
 			return($data);
@@ -1649,7 +1639,7 @@ class UniteCreatorParamsProcessorWork{
 	 * get processe param data, function with override
 	 */
 	protected function getProcessedParamData($data, $value, $param, $processType){
-		
+				
 		$type = UniteFunctionsUC::getVal($param, "type");
 		$name = UniteFunctionsUC::getVal($param, "name");
 		
@@ -1737,7 +1727,7 @@ class UniteCreatorParamsProcessorWork{
 	 * @param $objParams
 	 */
 	public function getProcessedParamsValues($arrParams, $processType, $filterType = null){
-	   			
+	   	
 		self::validateProcessType($processType);
 		
 		$arrParams = $this->processParamsForOutput($arrParams);
@@ -1761,7 +1751,7 @@ class UniteCreatorParamsProcessorWork{
 				$value = UniteFunctionsUC::getVal($param, "value");
 	
 			$value = $this->convertValueByType($value, $type, $param);
-			
+						
 			if(empty($name))
 				continue;
 	
@@ -1858,70 +1848,12 @@ class UniteCreatorParamsProcessorWork{
 	}
 	
 	
-	/**
-	 * get items image size accordion special attribute
-	 */
-	public function getProcessedItemsData_getImageSize($processType = null){
-		
-		if($processType == self::PROCESS_TYPE_CONFIG)
-			return(null);
-		
-		$paramsSpecial = $this->addon->getParams(UniteCreatorDialogParam::PARAM_SPECIAL);
-		
-		if(empty($paramsSpecial))
-			return(null);
-			
-		foreach($paramsSpecial as $param){
-						
-			$attributeType = UniteFunctionsUC::getVal($param, "attribute_type");
-			if($attributeType != "items_image_size")
-				continue;
-			
-			$value = UniteFunctionsUC::getVal($param, "value");
-			
-			if(empty($value))
-				return(null);
-			
-			$name = UniteFunctionsUC::getVal($param, "name");
-						
-			if(is_array($value)){
-				$value = UniteFunctionsUC::getVal($value, $name."_size");
-			}
-			
-			return($value);
-		}
-		
-		
-		return(null);
-	}
-	
-	/**
-	 * modify image param
-	 */
-	private function getProcessedItemsData_modifyImageItem($arrItemParams, $itemsImageSize){
-		
-		foreach($arrItemParams as $index => $param){
-			
-			$type = UniteFunctionsUC::getVal($param, "type");
-			
-			if($type != UniteCreatorDialogParam::PARAM_IMAGE)
-				continue;
-			
-			$param["add_image_sizes"] = true;
-			$param["value_size"] = $itemsImageSize;
-			
-			$arrItemParams[$index] = $param;
-		}
-		
-		return($arrItemParams);
-	}
-	
 	
 	/**
 	 * get item data
 	 */
 	public function getProcessedItemsData($arrItems, $processType, $forTemplate = true, $filterType = null){
-		
+				
 		$this->validateInited();
 		self::validateProcessType($processType);
 		
@@ -1937,22 +1869,36 @@ class UniteCreatorParamsProcessorWork{
 		if(empty($arrItems))
 			return(array());
 		
-		//check for special params
-		$itemsImageSize = $this->getProcessedItemsData_getImageSize($processType);
+		//process form items
+		$itemsType = $this->addon->getItemsType();
+		if($itemsType == UniteCreatorAddon::ITEMS_TYPE_FORM){
+			
+			$objForm = new UniteCreatorForm();
+			$objForm->setAddon($this->addon);
+			
+			if($this->isOutputProcessType($processType)){
+				
+				$arrItems = $objForm->processFormItemsForOutput($arrItems);
+				return($arrItems);
+			}else{
+				
+				//don't process for config
+				//$arrItems = $this->normalizeItemsData($arrItems);
+				//dmp($arrItems);
+				
+				return($arrItems);
+			}
+		}
 		
+		
+		//regular process
 		$operations = new UCOperations();
 		
 		$arrItemsNew = array();
 		$arrItemParams = $this->addon->getParamsItems();
-		
-		if(!empty($itemsImageSize)){
-			$arrItemParams = $this->getProcessedItemsData_modifyImageItem($arrItemParams, $itemsImageSize);
-		}
-		
 		$arrItemParams = $this->initProcessParams($arrItemParams);
 		
 		$numItems = count($arrItems);
-		
 		
 		foreach($arrItems as $index => $arrItemValues){
 			
@@ -1961,9 +1907,8 @@ class UniteCreatorParamsProcessorWork{
 			//if not found - generate one
 			if(empty($elementorID))
 				$elementorID = UniteFunctionsUC::getRandomString(5);
-						
-			$arrParamsNew = $this->addon->setParamsValuesItems($arrItemValues, $arrItemParams);
 			
+			$arrParamsNew = $this->addon->setParamsValuesItems($arrItemValues, $arrItemParams);
 			
 			$item = $this->getProcessedParamsValues($arrParamsNew, $processType, $filterType);
 			
@@ -2013,9 +1958,6 @@ class UniteCreatorParamsProcessorWork{
 			else
 				$arrItemsNew[] = $item;
 		}
-		
-		
-		//dmp("get processed data output"); dmp($arrItemsNew); exit();
 		
 		
 		return($arrItemsNew);

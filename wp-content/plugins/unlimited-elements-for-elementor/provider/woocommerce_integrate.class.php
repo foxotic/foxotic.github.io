@@ -225,7 +225,7 @@ class UniteCreatorWooIntegrate{
 			
 			$from = (float)$from;
 			$to = (float)$to;
-						
+			
 			$from = $this->modifyPrice($from, $objProduct);
 			$to = $this->modifyPrice($to, $objProduct);
 			
@@ -239,6 +239,7 @@ class UniteCreatorWooIntegrate{
 		$regularPriceTo = UniteFunctionsUC::getVal($arrProduct, "woo_regular_price_to");
 		
 		$salePriceFrom = UniteFunctionsUC::getVal($arrProduct, "woo_sale_price_from");
+				
 		
 		if($regularPriceFrom === $salePriceFrom){
 			$arrProduct["woo_sale_price_from"] = null;
@@ -248,8 +249,6 @@ class UniteCreatorWooIntegrate{
 			$regularPriceFrom = $this->modifyPrice($regularPriceFrom, $objProduct);
 			$regularPriceTo = $this->modifyPrice($regularPriceTo, $objProduct);
 			
-			$arrProduct["woo_regular_price_from"] = $regularPriceFrom;
-			$arrProduct["woo_regular_price_to"] = $regularPriceTo;
 		}
 				
 		return($arrProduct);
@@ -286,7 +285,7 @@ class UniteCreatorWooIntegrate{
     		$prefix."price_from",
     		$prefix."price_to"
     	);
-		
+
     	array_splice($arrProperties, 4, 0, $arrVariable);
     	
     	return($arrProperties);
@@ -684,11 +683,6 @@ class UniteCreatorWooIntegrate{
     	$salePrice = UniteFunctionsUC::getVal($arrData, "sale_price");
     	$regularPrice = UniteFunctionsUC::getVal($arrData, "regular_price");
     	$price = UniteFunctionsUC::getVal($arrData, "price");
-    	
-    	$price = apply_filters("woocommerce_product_get_price", $price, $objInfo);
-    	$salePrice = apply_filters("woocommerce_product_get_sale_price", $salePrice, $objInfo);
-    	$regularPrice = apply_filters("woocommerce_product_get_regular_price", $regularPrice, $objInfo);
-    	
     	
     	$salePrice = $this->modifyPrice($salePrice, $objInfo);
     	$regularPrice = $this->modifyPrice($regularPrice, $objInfo);

@@ -978,24 +978,6 @@ class UniteCreatorDialogParamElementor extends UniteCreatorDialogParam{
 		
 	}
 	
-	/**
-	 * 
-	 * function for override
-	 */
-	protected function putPostSelectAttribute(){
-		
-		$this->putNoDefaultValueText();
-				
-	}
-
-	/**
-	 * function for override
-	 */
-	protected function putTermSelectAttribute(){
-		
-		$this->putNoDefaultValueText();
-	}
-	
 	
 	private function ____NUMBER____(){}
 	

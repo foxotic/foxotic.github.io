@@ -2012,7 +2012,9 @@ function UniteCreatorParamsDialog(){
 						
 						var objChild = jQuery(child);
 						var childValue = objChild.data("control");
-												
+						
+						trace(value);
+						
 						var arrValues = childValue.split(",");
 						if(arrValues.length > 1){
 							

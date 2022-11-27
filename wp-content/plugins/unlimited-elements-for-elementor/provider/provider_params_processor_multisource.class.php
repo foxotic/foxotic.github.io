@@ -9,7 +9,7 @@ class UniteCreatetorParamsProcessorMultisource{
 	private $itemsType;
 	private $debugJsonCsv = false;
 	private $showDebugData = false;
-	private $showDebugMeta = false;
+	
 	
 	
 	const SOURCE_REPEATER = "repeater";
@@ -42,21 +42,15 @@ class UniteCreatetorParamsProcessorMultisource{
 	 */
 	private function getData_posts(){
 		
-		
 		$paramPosts = $this->param;
 		
 		$paramPosts["name"] = $this->nameParam;
 		$paramPosts["name_listing"] = $this->name;
 		$paramPosts["use_for_listing"] = true;
-
+		
 		$dataResponse = $this->objProcessor->getPostListData($this->arrValues, $paramPosts["name"], $this->processType, $paramPosts, $this->inputData);
 		
 		$arrPosts = UniteFunctionsUC::getVal($dataResponse, $this->name."_items");
-		
-		//debug meta
-		
-		if($this->showDebugMeta == true)
-			HelperUC::$operations->putPostsCustomFieldsDebug($arrPosts);
 		
 		//get the post items array
 		
@@ -69,11 +63,10 @@ class UniteCreatetorParamsProcessorMultisource{
 		foreach($arrPosts as $post){
 		
 			$postItem = $this->objProcessor->getPostDataByObj($post, null, $arrImageSizes);
-						
-			$arrPostItems[] = $postItem;
+			
+			$arrPostItems = $postItem;
 		}
 		
-				
 		return($arrPostItems);
 	}
 	
@@ -90,10 +83,6 @@ class UniteCreatetorParamsProcessorMultisource{
 		$paramTerms["use_for_listing"] = true;
 		
 		$arrTerms = $this->objProcessor->getWPTermsData($this->arrValues, $paramTerms["name"], $this->processType, $paramTerms, $this->inputData);
-		
-		if($this->showDebugMeta == true)
-			HelperUC::$operations->putTermsCustomFieldsDebug($arrTerms);
-		
 		
 		return($arrTerms);
 	}
@@ -144,124 +133,26 @@ class UniteCreatetorParamsProcessorMultisource{
 	private function getData_repeater(){
 		
 		
+		
+		$post = get_post();
+		
+		if(empty($post))
+			return(null);
+		
+		$postID = $post->ID;
+		
+		
 		$nameParamRepeater = $this->name."_repeater";
 		
 		$repeaterName = UniteFunctionsUC::getVal($this->arrValues, $this->name."_repeater_name");
 		
 		$location = UniteFunctionsUC::getVal($this->arrValues, $this->name."_repeater_location");
 		
-		$arrRepeaterItems = array();
-		
-		$postID = null;
-		$post = null;
-		$termID = null;
-		$userID = null;
+		$repeaterPostID = UniteFunctionsUC::getVal($this->arrValues, $this->name."_repeater_post");
 		
 		switch($location){
-			case "selected_post":
-				
-				$repeaterPostID = UniteFunctionsUC::getVal($this->arrValues, $this->name."_repeater_post");
-				
-				if(empty($repeaterPostID) || is_numeric($repeaterPostID) == 0){
-					
-					if($this->showDebugData == true)
-						dmp("wrong post id $repeaterPostID");
-					
-					return(null);
-				}
-								
-				$postID = $repeaterPostID;
-				
-				$post = get_post($postID);
-				
-				if(empty($post)){
-					
-					if($this->showDebugData == true)
-						dmp("post with id: $postID not found");
-					
-					return(null);
-				}
-				
-			break;
-			case "current_post":
-				
-				$post = get_post();
-				
-				if(empty($post)){
-					
-					if($this->showDebugData == true)
-						dmp("get data from current post - no current post found");
-					
-					return(null);
-				}
-				
-				$postID = $post->ID;
-				
-			break;
-			case "parent_post":
-				
-				$post = get_post_parent();
-				
-				if(empty($post)){
-					
-					if($this->showDebugData == true)
-						dmp("get data from parent post - no parent post found");
-					
-					return(null);
-				}
-				
-				$postID = $post->ID;
-				
-			break;
-			case "current_term":
-				
-				$termID = UniteFunctionsWPUC::getCurrentTermID();
-								
-				if(empty($termID)){
-				
-					if($this->showDebugData == true)
-						dmp("get data from current term - no current term found. try to load from some category archive page.");
-					
-					return(null);
-				}
-				
-			break;
-			case "parent_term":
-				
-				$termID = UniteFunctionsWPUC::getCurrentTermID();
-								
-				if(empty($termID)){
-				
-					if($this->showDebugData == true)
-						dmp("get parent term - no current term found. try to load from some category archive page.");
-					
-					return(null);
-				}
-				
-				$termID = wp_get_term_taxonomy_parent_id($termID);
-				
-				if(empty($termID)){
-					
-					if($this->showDebugData == true)
-						dmp("get parent term - no parent term found from term id: $termID. check this term if it has parent.");
-					
-					return(null);
-				}
-				
-			break;
-			case "current_user":
-				
-				$userID = get_current_user_id();
-				
-				if(empty($userID)){
-					
-					if($this->showDebugData == true)
-						dmp("get current user no logged in user found.");
-					
-					return(null);
-				}
-
-			break;
+			//case "selected_post":
+			//break;
 			default:
 				dmp("get data from location: $location !!!!!!!!!!!!!!!!!!!!!");
 			break;
@@ -274,83 +165,10 @@ class UniteCreatetorParamsProcessorMultisource{
 		}
 		
 		
-		//---- load from post
-		
-		if(!empty($postID)){
-			
-			$arrCustomFields = UniteFunctionsWPUC::getPostCustomFields($postID, false, $this->itemsImageSize);
-			
-		}
-		
-		//------ load from term
-		
-		if(!empty($termID)){
-			
-			$arrCustomFields = UniteFunctionsWPUC::getTermCustomFields($termID, false);
-		}
-		
-		if(!empty($userID))
-			$arrCustomFields = UniteFunctionsWPUC::getUserCustomFields($userID, false);
-
-		$arrRepeaterItems = UniteFunctionsUC::getVal($arrCustomFields, $repeaterName);
-		
-		//show debug meta text
-		
-		if($this->showDebugMeta == true){
-			
-			if(!empty($postID)){
-				
-				$text = "Post <b>".$post->post_title." ($postID)</b>";
-				
-				HelperUC::$operations->putCustomFieldsArrayDebug($arrCustomFields, $text);
-			}
-			
-			if(!empty($termID)){
-				
-				$text = "Term <b>".$term->name." ($termID)</b>";
-				
-				HelperUC::$operations->putCustomFieldsArrayDebug($arrCustomFields, $text);
-			}
-			
-			if(!empty($userID)){
-				
-				$text = "User <b>".$user["name"]." ($userID)</b>";
-				
-				HelperUC::$operations->putCustomFieldsArrayDebug($arrCustomFields, $text);
-			}
-			
-			
-		}
-		
-		//show debug data text
+		//debug
 		
 		if($this->showDebugData == true){
-			
-			$text = "Getting meta data from field: <b>$repeaterName</b> from <b>$location</b>";
-			
-			switch($location){
-				case "parent_post":
-				case "selected_post":
-				case "current_post":
-						$text .= ", <b>".$post->post_title."</b>";
-				break;
-				case "current_term":
-				case "parent_term":
-					
-					$term = get_term($termID);
-					
-					$text .= ", <b>".$term->name."</b>";
-				break;
-				case "current_user":
-					
-					$user = UniteFunctionsWPUC::getUserData($userID);
-					
-					$userName = UniteFunctionsUC::getVal($user, "name");
-					
-					$text .= ", <b>".$userName."</b>";
-					
-				break;
-			}
+			$text = "Getting meta data from field: <b>$repeaterName</b> from <b>$location</b> ";
 			
 			dmp($text);
 		}
@@ -358,7 +176,11 @@ class UniteCreatetorParamsProcessorMultisource{
 		
 		//get the data from repeater
 		
-		if(empty($arrRepeaterItems) && !empty($postID) ){
+		$arrCustomFields = UniteFunctionsWPUC::getPostCustomFields($postID, false, $this->itemsImageSize);
+		
+		$arrRepeaterItems = UniteFunctionsUC::getVal($arrCustomFields, $repeaterName);
+		
+		if(empty($arrRepeaterItems)){
 			
 			$previewID = UniteFunctionsUC::getGetVar("preview_id","",UniteFunctionsUC::SANITIZE_TEXT_FIELD);
 
@@ -376,38 +198,20 @@ class UniteCreatetorParamsProcessorMultisource{
 		return($arrRepeaterItems);
 	}
 	
-	
 	/**
 	 * add dynamic field items
 	 */
 	private function getData_jsonCsv(){
 		
-		$showDebug = $this->showDebugData;
+		$showDebug = $this->debugJsonCsv;
 		
 		if($showDebug == true){
 			dmp("---- the debug is ON, please turn it off before release --- ");
 		}
-				
-		$contentLocation = UniteFunctionsUC::getVal($this->arrValues, $this->name."_json_csv_location");
 		
-		if($contentLocation == "url"){
-			
-			$url = UniteFunctionsUC::getVal($this->arrValues, $this->name."_json_csv_url");
-			
-			if(empty($url)){
-				
-				if($showDebug)
-					dmp("no url found for json csv");
-				
-				return(null);
-			}
-			
-			$dynamicFieldValue = HelperUC::$operations->getUrlContents($url, $showDebug);
-			
-		}else{
-			$dynamicFieldValue = UniteFunctionsUC::getVal($this->arrValues, $this->name."_json_csv_dynamic_field");
-		}
-				
+		
+		$dynamicFieldValue = UniteFunctionsUC::getVal($this->arrValues, $this->name."_json_csv_dynamic_field");
+		
 		if(empty($dynamicFieldValue)){
 			
 			if($showDebug)
@@ -656,6 +460,33 @@ class UniteCreatetorParamsProcessorMultisource{
 			dmp($arrData);
 		}
 		
+		
+		switch($source){
+			case self::SOURCE_POSTS:
+				
+				//addData is posts
+				
+				//show meta fields
+				$isShowMeta =  UniteFunctionsUC::getVal($this->arrValues, $this->name."_show_metafields"); 
+				$isShowMeta = UniteFunctionsUC::strToBool($isShowMeta);
+		
+				if($isShowMeta == true)
+					HelperUC::$operations->putPostsCustomFieldsDebug($arrData);
+				
+			break;
+			case self::SOURCE_REPEATER:
+				
+				//show current post meta
+				
+				$isShowMeta = UniteFunctionsUC::getVal($this->arrValues, $this->name."_show_current_meta");
+				$isShowMeta = UniteFunctionsUC::strToBool($isShowMeta);
+				
+				if($isShowMeta == true)
+					HelperUC::$operations->putPostCustomFieldsDebug("current", true);
+				
+			break;
+			
+		}
 		
 		
 	}
@@ -1078,18 +909,11 @@ class UniteCreatetorParamsProcessorMultisource{
 		//get image size
 		$this->itemsImageSize = $this->objProcessor->getProcessedItemsData_getImageSize($processType);
 		
-		//debug
-		
 		$isShowInputData = UniteFunctionsUC::getVal($this->arrValues, $this->name."_show_input_data"); 
 		$isShowInputData = UniteFunctionsUC::strToBool($isShowInputData);
 		
 		$this->showDebugData = $isShowInputData;
 		
-		
-		$isShowMeta =  UniteFunctionsUC::getVal($this->arrValues, $this->name."_show_metafields"); 
-		$isShowMeta = UniteFunctionsUC::strToBool($isShowMeta);
-		
-		$this->showDebugMeta = $isShowMeta;
 		
 		$this->checkDebugBeforeData($itemsSource);
 		
@@ -1105,6 +929,7 @@ class UniteCreatetorParamsProcessorMultisource{
 			$this->showDebug($itemsSource, $arrData);
 			
 		}
+		
 		
 		$response = $this->getItems($itemsSource, $arrData);
 		

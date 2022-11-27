@@ -463,6 +463,27 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		}
 		
 		
+		/**
+		 * put debug of post custom fields
+		 */
+		public function putPostCustomFieldsDebug($postID){
+			
+			$post = get_post($postID);
+			
+			if(empty($post))
+				return(false);
+				
+			$postTitle = $post->post_title;
+			
+			$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
+			
+			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
+			
+			echo "<br>Meta fields for post: $postTitle <br>";
+			
+			dmp($htmlFields);
+			
+		}
 		
 		/**
 		 * get the cats
@@ -521,294 +542,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			
 			
-		}
-		
-		/**
-		 * get schema
-		 */
-		public function getArrSchema($arrInputItems, $schemaType, $titleKey, $contentKey){
-			
-			switch ($schemaType) {
-			    case 'faq':
-			    default:
-			    	
-					$arrItems = array();
-	
-					$arrItems['@context'] = "https://schema.org";
-					$arrItems['@type'] = 'FAQPage';
-					
-					foreach($arrInputItems as $item){
-						
-						$innerItem = UniteFunctionsUC::getVal($item, "item");
-						
-						$title = UniteFunctionsUC::getVal($innerItem, $titleKey);
-						$content = UniteFunctionsUC::getVal($innerItem, $contentKey);
-						
-						$title = strip_tags($title);
-						$content = strip_tags($content);
-						
-						
-						$itemArray = array();
-						$itemArray['@type'] = 'Question';
-						$itemArray['name'] = $title;
-					
-						$subitemArray = array();
-						$subitemArray['@type'] = 'Answer';
-						$subitemArray['text'] = $content;
-						$itemArray['acceptedAnswer'] = $subitemArray;
-	
-						$arrItems['mainEntity'][] = $itemArray;
-					}
-			} //switch
-			
-			return($arrItems);
-		}
-		
-		private function a____________DEBUG____________(){}
-		
-		/**
-		 * modify field for debug
-		 */
-		public function modifyDebugField($field){
-			
-			if(is_string($field) == false)
-				return($field);
-			
-			$maxChars = 200;
-				
-			$field = trim($field);
-			
-			$numchars = strlen($field);
-						
-			$field = htmlspecialchars($field);
-			
-			if(strlen($field) < $maxChars)
-				return($field);
-			
-			//remove spaces
-			$field = str_replace(" ", "", $field);
-			$field = str_replace("\n", "", $field);
-			
-			if(strlen($field) > $maxChars)
-				$field = substr($field, 0,$maxChars)."... ($numchars chars)";
-			
-			return($field);
-		}
-		
-		
-		/**
-		 * put debug of post custom fields
-		 */
-		public function putPostCustomFieldsDebug($postID, $showCustomFields = false){
-			
-			if($postID == "current"){
-				$post = get_post();
-				$postID = $post->ID;
-			}
-			else
-				$post = get_post($postID);
-			
-			if(empty($post))
-				return(false);
-				
-			$postTitle = $post->post_title;
-			
-			if($showCustomFields == false)
-				$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
-			else{
-				$arrCustomFields = UniteFunctionsWPUC::getPostCustomFields($postID, false);
-				
-				if(empty($arrCustomFields))
-					$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
-			}
-			
-			if(empty($arrCustomFields))
-				$arrCustomFields = array();
-			
-			foreach($arrCustomFields as $key=>$field){
-				$arrCustomFields[$key] = $this->modifyDebugField($field);
-			}
-				
-			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
-			
-			$fieldsTitle = "Meta";
-			if($showCustomFields == true)
-				$fieldsTitle = "Custom";
-			
-			echo "<br>{$fieldsTitle} fields for post: <b>$postTitle </b>, post id: $postID <br>";
-			
-			dmp($htmlFields);
-			
-		}
-		
-		
-		/**
-		 * put term custom fields - for debug
-		 */
-		public function putTermCustomFieldsDebug($term){
-			
-			
-			if(is_array($term)){
-				
-				$termID = UniteFunctionsUC::getVal($term, "id");
-				$name = UniteFunctionsUC::getVal($term, "name");
-				
-			}else{
-				
-				$termID = $term->term_id;
-				$name = $term->name;
-			}
-			
-			$arrCustomFields = UniteFunctionsWPUC::getTermCustomFields($termID,false);
-
-			foreach($arrCustomFields as $key=>$field){
-				$arrCustomFields[$key] = $this->modifyDebugField($field);
-			}
-				
-			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
-			
-			$fieldsTitle = "Meta";
-			
-			echo "<br>{$fieldsTitle} fields for term: <b>$name </b>, term id: $termID <br>";
-			
-			dmp($htmlFields);
-			
-		}
-		
-		/**
-		 * terms custom fields debug
-		 */
-		public function putTermsCustomFieldsDebug($arrTerms){
-			
-			if(empty($arrTerms))
-				return(false);
-
-			dmp("Show the terms meta fields. Please turn off this option before release.");
-			
-			foreach($arrTerms as $term){
-				
-				if(is_array($term))
-					$termID = UniteFunctionsUC::getVal($term, "id");
-				else
-					$termID = $term->term_id;
-								
-				$this->putTermCustomFieldsDebug($term);
-				
-			}
-			
-		}
-		
-		
-		/**
-		 * put posts meta fields debug
-		 */
-		public function putPostsCustomFieldsDebug($arrPosts){
-			
-			if(empty($arrPosts))
-				return(false);
-			
-			dmp("Show the posts meta fields. Please turn off this option before release.");
-			
-			foreach($arrPosts as $post){
-				
-				$postID = $post->ID;
-				
-				$this->putPostCustomFieldsDebug($postID);
-			}
-			
-		}
-		
-		
-		/**
-		 * put custom fields array to debug
-		 */
-		public function putCustomFieldsArrayDebug($arrCustomFields, $title = null){
-			
-			if(!empty($title))
-				dmp("$title custom fields debug. turn off before release");
-			
-			foreach($arrCustomFields as $key=>$field){
-				$arrCustomFields[$key] = $this->modifyDebugField($field);
-			}
-				
-			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
-			
-			dmp($htmlFields);
-		}
-		
-		private function a____________URL_CONTENTS____________(){}
-		
-		
-		/**
-		 * get url contents from file or url with cache
-		 */
-		public function getUrlContents($url, $showDebug = false){
-
-			if($showDebug == true)
-				dmp("get contents from url: $url");
-			
-			$urlRelative = HelperUC::URLtoRelative($url);
-			
-			$isFile = $urlRelative != $url;
-			
-			if($isFile == true){
-				
-				$pathFile = HelperUC::urlToPath($url);
-								
-				if(empty($pathFile)){
-					
-					if($showDebug == true){
-						$pathFile = GlobalsUC::$path_base.$urlRelative;
-						
-						dmp("file not exists:  $pathFile");
-						exit();
-					}
-					
-					return(null);
-				}
-				
-				if($showDebug == true)
-					dmp("file detected: $pathFile");
-				
-				$content = file_get_contents($pathFile);
-				
-				return($content);
-			}
-						
-			//add to cache
-			
-			$cacheKey = "uc_geturl_".$url;
-			$cacheKey = HelperInstaUC::convertTitleToHandle($cacheKey);
-			
-			$content = UniteProviderFunctionsUC::getTransient($cacheKey);
-			
-			if(!empty($content)){
-				
-				if($showDebug == true)
-					dmp("get contents from cache (3 min)");
-				
-				return($content);
-			}
-			
-			try{
-				
-				$content = UniteFunctionsUC::getUrlContents($url, null, false);
-				
-				if($showDebug == true)
-					dmp("get contents from url itself");
-			
-			}catch(Exception $e){
-				
-				if($showDebug == true)
-					dmp("failed to get url contents: $url");
-				
-				return(null);
-			}
-						
-			UniteProviderFunctionsUC::setTransient($cacheKey, $content, 180);	//3 min
-			
-			
-			return($content);
 		}
 		
 		private function a____________DATE____________(){}
@@ -1086,43 +819,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			return($text);
 		}
-
-		
-		/**
-		 * get last query post ids
-		 */
-		public function getLastQueryPostIDs(){
-			
-			$query = GlobalsProviderUC::$lastPostQuery;
-			
-			if(empty($query)){
 				
-				return(null);
-			}
-			
-			$posts = $query->posts;
-			
-			if(empty($posts))
-				return(null);
-				
-			$arrPostIDs = array();
-			
-			foreach($posts as $post){
-				
-				$postID = $post->ID;
-				
-				$arrPostIDs[] = $postID;
-			}
-			
-			if(empty($arrPostIDs))
-				return(null);
-				
-			$strPostIDs = implode(",", $arrPostIDs);
-			
-			return($arrPostIDs);
-		}
-		
-		
 		
 		/**
 		 * get last query data
@@ -1138,19 +835,12 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			$objPagination = new UniteCreatorElementorPagination();
 			$data = $objPagination->getPagingData();
-
-			$totalPages = UniteFunctionsUC::getVal($data, "total");			
-			
-			if($totalPages == 0)
-				$totalPages = 1;
-			
-			$numPosts = count($query->posts);
 			
 			$output = array();
-			$output["count_posts"] = $numPosts;
+			$output["count_posts"] = $query->max_num_pages;
 			$output["total_posts"] = $query->found_posts;
 			$output["page"] = UniteFunctionsUC::getVal($data, "current");
-			$output["num_pages"] = $totalPages;
+			$output["num_pages"] = UniteFunctionsUC::getVal($data, "total");
 			
 			return($output);
 		}

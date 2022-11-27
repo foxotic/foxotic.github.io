@@ -130,9 +130,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 			//some fix that avoid double names
 			$arrDuplicateValues = UniteFunctionsUC::getArrayDuplicateValues($arrItemTax);
 			
-			if(empty($arrItemTax))
-				$arrItemTax = array();
-			
 			foreach($arrItemTax as $slug => $taxTitle){
 
 				if(is_string($taxTitle) == false)
@@ -390,8 +387,9 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		if($isForWooCommerce == true)
 			$arrPostTypesWithTax = array("product" => $arrPostTypesWithTax["product"]);
 		
+			
 		$taxData = $this->addPostTermsPicker_getArrTaxonomies($arrPostTypesWithTax);
-				
+		
 		$arrPostTypesTaxonomies = $taxData["post_type_tax"];
 		
 		$arrTaxonomiesSimple = $taxData["taxonomies_simple"];
@@ -399,30 +397,21 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		//----- add post types ---------
 		
 		//prepare post types array
-				
+		
 		$arrPostTypes = array();
 		foreach($arrPostTypesWithTax as $typeName => $arrType){
 			
 			$title = UniteFunctionsUC::getVal($arrType, "title");
-						
 			if(empty($title))
 				$title = ucfirst($typeName);
 			
-			if(isset($arrPostTypes[$title]))
-				$title = ucfirst($typeName);
-
-			if(isset($arrPostTypes[$title]))
-				$title = ucfirst($typeName." ".$title);
-			
 			$arrPostTypes[$title] = $typeName;
 		}
-		
 		
 		$postType = UniteFunctionsUC::getVal($value, $name."_posttype");
 		if(empty($postType))
 			$postType = UniteFunctionsUC::getArrFirstValue($arrPostTypes);
 		
-				
 		$params = array();
 		
 		$params[UniteSettingsUC::PARAM_CLASSADD] = "unite-setting-post-type";
@@ -679,16 +668,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$params["description"] = __("Show the query for debugging purposes. Don't forget to turn it off before page release", "unlimited-elements-for-elementor");
 		
 		$this->addRadioBoolean($name."_show_query_debug", __("Show Query Debug", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
-		
-		//---- query id -----
-				
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_TEXTFIELD;
-		$title = __("Query ID", "unlimited-elements-for-elementor");
-		$params["description"] = __("Give your Query unique ID to been able to filter it in server side using add_filter() function. <a href='https://unlimited-elements.com/docs/work-with-query-id-in-terms-selection/'><a target='blank' href='https://unlimited-elements.com/docs/work-with-query-id-in-posts-selection/'>See docs here</a></a>.","unlimited-elements-for-elementor");
-		
-		$this->addTextBox($name."_queryid", "", $title, $params);
-		
 		
 		//--------- debug type terms ---------
 		
@@ -974,7 +953,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 	/**
 	 * add post ID select
 	 */
-	public function addPostIDSelect($settingName, $text = null, $elementorCondition = null, $isForWoo = false, $addAttribOpt = "", $params = array()){
+	protected function addPostIDSelect($settingName, $text = null, $elementorCondition = null, $isForWoo = false, $addAttribOpt = "", $params = array()){
 		
 		if(empty($text))
 			$text = __("Search and Select Posts", "unlimited-elements-for-elementor");
@@ -1007,11 +986,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		
 		if(isset($params["placeholder"])){
 			$placeholder = $params["placeholder"];
-		}
-		
-		if($isForWoo === "single"){
-			
-			$addAttrib = " data-issingle='true'";
 		}
 		
 		if(!empty($addAttribOpt))
@@ -1252,8 +1226,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$arrIncludeBy["most_viewed"] = __("Most Viewed", "unlimited-elements-for-elementor");
 		$arrIncludeBy["php_function"] = __("IDs from PHP function","unlimited-elements-for-elementor");
 		$arrIncludeBy["ids_from_meta"] = __("IDs from Post Meta","unlimited-elements-for-elementor");
-		$arrIncludeBy["ids_from_dynamic"] = __("Post IDs from Dynamic Field","unlimited-elements-for-elementor");
-		$arrIncludeBy["terms_from_dynamic"] = __("Terms from Dynamic Field", "unlimited-elements-for-elementor");
+		$arrIncludeBy["ids_from_dynamic"] = __("IDs from Dynamic Field","unlimited-elements-for-elementor");
 		
 		if($isForWooProducts == true){
 			$arrIncludeBy["products_on_sale"] = __("Products On Sale Only (woo)","unlimited-elements-for-elementor");
@@ -1438,7 +1411,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$params["placeholder"] = __("Meta Value","unlimited-elements-for-elementor");
 		$params["add_dynamic"] = true;
 		$params["description"] = "";
-		$params["label_block"] = true;
 		
 		$params["elementor_condition"] = $arrConditionIncludeMeta;
 		
@@ -1446,7 +1418,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$this->addTextBox($name."_includeby_metavalue", "", esc_html__("Include by Meta Value", "unlimited-elements-for-elementor"), $params);
 		$this->addTextBox($name."_includeby_metavalue2", "", esc_html__("Include by Meta Value 2", "unlimited-elements-for-elementor"), $params);
 		
-		$params["description"] = "Special keywords you can use: {current_user_id}, or like this:  value1||value2||value3";
+		$params["description"] = "Special keywords you can use: {current_user_id}";
 		
 		$this->addTextBox($name."_includeby_metavalue3", "", esc_html__("Include by Meta Value 3", "unlimited-elements-for-elementor"), $params);
 		
@@ -1555,7 +1527,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		
 		$this->addTextBox($name."_includeby_postmeta_metafield", "", esc_html__("Meta Field Name", "unlimited-elements-for-elementor"), $params);
 		
-
 		//----- include id's from dynamic field -------
 		
 		$arrConditionIncludeDynamic = $arrConditionIncludeBy;
@@ -1569,21 +1540,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$params["add_dynamic"] = true;
 		
 		$this->addTextBox($name."_includeby_dynamic_field","",__("Include Posts by Dynamic Field","unlimited-elements-for-elementor"), $params);
-
-		
-		//----- include terms from dynamic field by ids -------
-		
-		$arrConditionIncludeDynamic = $arrConditionIncludeBy;
-		$arrConditionIncludeDynamic[$name."_includeby"] = "terms_from_dynamic";
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_TEXTFIELD;
-		$params["description"] = __("Enter term id's like 12,434,1289, or select from dynamic tag. You can use the term relation and include children options from below","unlimited-elements-for-elementor");
-		$params["elementor_condition"] = $arrConditionIncludeDynamic;
-		$params["label_block"] = true;
-		$params["add_dynamic"] = true;
-		
-		$this->addTextBox($name."_includeby_terms_dynamic_field","",__("Include by Terms from Dynamic Field","unlimited-elements-for-elementor"), $params);
 		
 		
 		// --------- include by most viewed -------------
@@ -1718,25 +1674,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$params["label_block"] = true;
 		$params["description"] = "Optional. Select some dynamic field, that has output of post ids (string or array) like 15,40,23";
 		
-		$this->addTextBox($name."_manual_post_ids_dynamic", "", __("Or Select Post IDs 	", "unlimited-elements-for-elementor"), $params);
-
-		// --------- add hr before avoid duplicates -------------
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_HR;
-		$params["elementor_condition"] = $arrManualElementorCondition;
-		
-		$this->addHr($name."_before_avoid_duplicates_manual",$params);
-		
-		
-		//----- avoid duplicates -------
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
-		$params["description"] = __("If turned on, those posts in another widgets won't be shown", "unlimited-elements-for-elementor");
-		$params["elementor_condition"] = $arrManualElementorCondition;
-		
-		$this->addRadioBoolean($name."_manual_avoid_duplicates", __("Avoid Duplicates", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
+		$this->addTextBox($name."_manual_post_ids_dynamic", "", __("Or Select Post IDs by Dynamic Field", "unlimited-elements-for-elementor"), $params);
 		
 		
 		// --------- add hr before exclude -------------
@@ -1766,7 +1704,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$arrExclude["current_tags"] = sprintf(__("%s With Current Tags", "unlimited-elements-for-elementor"),$textPosts);
 		$arrExclude["offset"] = sprintf(__("Offset", "unlimited-elements-for-elementor"),$textPosts);
 		$arrExclude["avoid_duplicates"] = sprintf(__("Avoid Duplicates", "unlimited-elements-for-elementor"),$textPosts);
-		$arrExclude["ids_from_dynamic"] = sprintf(__("Post IDs from Dynamic Field", "unlimited-elements-for-elementor"),$textPosts);
+		$arrExclude["ids_from_dynamic"] = sprintf(__("IDs from Dynamic Field", "unlimited-elements-for-elementor"),$textPosts);
 		
 		$params = array();
 		$params["origtype"] = UniteCreatorDialogParam::PARAM_DROPDOWN;
@@ -1781,8 +1719,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$arrExcludeValues = "";
 		
 		$this->addMultiSelect($name."_excludeby", $arrExclude, __("Exclude By", "unlimited-elements-for-elementor"), $arrExcludeValues, $params);
-
-		
 		
 		//----- exclude id's from dynamic field -------
 		
@@ -1797,7 +1733,6 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		$params["add_dynamic"] = true;
 		
 		$this->addTextBox($name."_exclude_dynamic_field","",__("Exclude Posts by Dynamic Field","unlimited-elements-for-elementor"), $params);
-		
 		
 		
 		//------- Already Fetched --------
@@ -2463,7 +2398,7 @@ class UniteCreatorSettings extends UniteCreatorSettingsWork{
 		
 		$arrSizes = array_flip($arrSizes);
 		$this->addSelect($name."_image_size", $arrSizes, __("Big Image Size", "unlimited-elements-for-elementor"), "large", $params);
-		
+
 
 		//=========== GALLERY POSTS VIDEOS =================
 

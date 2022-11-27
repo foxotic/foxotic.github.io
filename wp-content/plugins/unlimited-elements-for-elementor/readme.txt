@@ -1243,20 +1243,6 @@ Note : This plugin works with Elementor. Make sure you have [Elementor](https://
 
 == Changelog ==
 
-version 1.5.41: 2022-11-24
-
--bug fix: fixed post select in post query
-
-
-version 1.5.40: 2022-11-23
-
-* Feature: added integration to woocommerce multicourancy plugins
-* Feature: made some integration with translate press plugin
-* Feature: added select post and select term attribute
-* Fix: fixed dynamic loop css backgrounds with containers
-* Fix: fixed mousewheel event in the carousel
-* Fix: fixed some rare php error with filters
-
 
 version 1.5.39: 2022-11-16
 

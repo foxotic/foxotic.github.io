@@ -14,7 +14,7 @@ class UniteCreatorWooIntegrate{
 	
 	const POST_TYPE_PRODUCT = "product";
 	const PRODUCT_TYPE_VARIABLE = "variable";
-	
+		
 	private $currency;
 	private $currencySymbol;
 	private $urlCheckout;
@@ -225,7 +225,7 @@ class UniteCreatorWooIntegrate{
 			
 			$from = (float)$from;
 			$to = (float)$to;
-						
+			
 			$from = $this->modifyPrice($from, $objProduct);
 			$to = $this->modifyPrice($to, $objProduct);
 			
@@ -239,6 +239,7 @@ class UniteCreatorWooIntegrate{
 		$regularPriceTo = UniteFunctionsUC::getVal($arrProduct, "woo_regular_price_to");
 		
 		$salePriceFrom = UniteFunctionsUC::getVal($arrProduct, "woo_sale_price_from");
+				
 		
 		if($regularPriceFrom === $salePriceFrom){
 			$arrProduct["woo_sale_price_from"] = null;
@@ -248,8 +249,6 @@ class UniteCreatorWooIntegrate{
 			$regularPriceFrom = $this->modifyPrice($regularPriceFrom, $objProduct);
 			$regularPriceTo = $this->modifyPrice($regularPriceTo, $objProduct);
 			
-			$arrProduct["woo_regular_price_from"] = $regularPriceFrom;
-			$arrProduct["woo_regular_price_to"] = $regularPriceTo;
 		}
 				
 		return($arrProduct);
@@ -286,7 +285,7 @@ class UniteCreatorWooIntegrate{
     		$prefix."price_from",
     		$prefix."price_to"
     	);
-		
+
     	array_splice($arrProperties, 4, 0, $arrVariable);
     	
     	return($arrProperties);
@@ -437,35 +436,6 @@ class UniteCreatorWooIntegrate{
 		return($arrOutput);
 	}
 	
-	/**
-	 * combine by name
-	 */
-	private function combineAttributesByName($arrAttributes){
-		
-		if(empty($arrAttributes))
-			return($arrAttributes);
-		
-		$arrCombined = array();
-			
-		foreach($arrAttributes as $name=>$arr){
-			
-			$name = UniteFunctionsUC::getVal($arr, "attr");
-			$value = UniteFunctionsUC::getVal($arr, "title");
-			
-			$arrAttribute = UniteFunctionsUC::getVal($arrCombined, $name);
-			
-			if(empty($arrAttribute))
-				$arrAttribute = array();
-				
-			$arrAttribute[] = $value;
-			
-			$arrCombined[$name] = $arrAttribute;
-		}
-		
-		return($arrCombined);
-	}
-	
-	
 	
 	/**
 	 * get product attribute names
@@ -489,51 +459,6 @@ class UniteCreatorWooIntegrate{
 		}	//foreach attributes
 				
 		return($arrOutput);
-	}
-	
-	/**
-	 * convert combined attributes array to text
-	 */
-	private function convertCombinedAttributesToText($arrCombined, $sap = ":", $sapValues = ","){
-		
-		$arrText = array();
-		
-		foreach($arrCombined as $name=>$arrValues){
-				
-			$strValues = implode($sapValues, $arrValues);
-			
-			$text = "{$name}{$sap} $strValues";
-			
-			$arrText[] = $text;
-		}
-		
-		return($arrText);
-	}
-	
-	
-	/**
-	 * get product attributes
-	 */
-	public function getProductAttributes($productID){
-		
-		if(function_exists("wc_get_product") == false)
-			return(array());
-		
-		$product = wc_get_product($productID);
-		
-		if(empty($product))
-			return(array());
-		
-		$arrAttributeTitles = $this->getProductAttributeNames($product);
-		
-		$arrCombined = $this->combineAttributesByName($arrAttributeTitles);
-		
-		if(empty($arrCombined))
-			return($arrCombined);
-		
-		$arrText = $this->convertCombinedAttributesToText($arrCombined);
-
-		return($arrText);
 	}
 	
 	
@@ -685,11 +610,6 @@ class UniteCreatorWooIntegrate{
     	$regularPrice = UniteFunctionsUC::getVal($arrData, "regular_price");
     	$price = UniteFunctionsUC::getVal($arrData, "price");
     	
-    	$price = apply_filters("woocommerce_product_get_price", $price, $objInfo);
-    	$salePrice = apply_filters("woocommerce_product_get_sale_price", $salePrice, $objInfo);
-    	$regularPrice = apply_filters("woocommerce_product_get_regular_price", $regularPrice, $objInfo);
-    	
-    	
     	$salePrice = $this->modifyPrice($salePrice, $objInfo);
     	$regularPrice = $this->modifyPrice($regularPrice, $objInfo);
     	$price = $this->modifyPrice($price, $objInfo);
@@ -763,7 +683,7 @@ class UniteCreatorWooIntegrate{
     	//put add to cart link
     	$arrProduct = $this->addAddToCartData($arrProduct, $productID, $productSku);
     	
-    	    	
+    	
     	return($arrProduct);
 	}
 	

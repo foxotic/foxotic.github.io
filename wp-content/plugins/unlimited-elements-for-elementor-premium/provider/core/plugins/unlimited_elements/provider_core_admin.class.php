@@ -143,7 +143,7 @@ class UniteProviderCoreAdminUC_Elementor extends UniteProviderAdminUC{
 	/**
 	 * init the admin notices
 	 */
-	public function initAdminNotices(){
+	private function initAdminNotices(){
 		
 		if(GlobalsUnlimitedElements::$showAdminNotice == false)
 			return(false);
@@ -177,10 +177,8 @@ class UniteProviderCoreAdminUC_Elementor extends UniteProviderAdminUC{
 		if(GlobalsUnlimitedElements::ALLOW_FEEDBACK_ONUNINSTALL == true)
 			$this->initFeedbackUninstall();
 
-		//init the admin notices - on admin init ation
-		
-		add_action("admin_init",array($this,"initAdminNotices"));
-						
+		$this->initAdminNotices();
+			
 		parent::init();
 	}
 	

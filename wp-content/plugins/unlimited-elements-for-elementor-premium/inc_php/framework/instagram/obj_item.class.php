@@ -281,9 +281,9 @@ class InstaObjItemUC{
 		$arr = array();
 		$arr["thumb"] = $this->getImageLow();
 		$arr["image"] = $this->getImageStandart();
-		$arr["caption"] = $this->getCaption();
 		$arr["num_likes"] = $this->getNumLikesText();
 		$arr["num_comments"] = $this->getNumCommentsText();
+		$arr["caption"] = $this->getCaption();
 		$arr["link"] = $this->getLink();
 		$arr["isvideo"] = $isVideo;
 		$arr["video_class"] = $class;

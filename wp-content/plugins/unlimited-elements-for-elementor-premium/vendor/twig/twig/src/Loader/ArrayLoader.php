@@ -100,5 +100,3 @@ class ArrayLoader implements LoaderInterface, ExistsLoaderInterface, SourceConte
 }
 
 class_alias('Twig\Loader\ArrayLoader', 'Twig_Loader_Array');
-
-

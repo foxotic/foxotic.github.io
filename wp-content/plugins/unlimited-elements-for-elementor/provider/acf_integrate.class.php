@@ -678,15 +678,8 @@ class UniteCreatorAcfIntegrate{
 					$arrData = get_fields($termID);
 					
 				break;
-				case "user":
-					
-					$userID = "user_".$postID;
-					
-					$arrData = get_fields($userID);
-										
-				break;
 				default:
-					UniteFunctionsUC::throwError("get acf fields function works only for post and term and users right now");
+					UniteFunctionsUC::throwError("get acf fields function works only for post and term right now");
 				break;
 			}
 			

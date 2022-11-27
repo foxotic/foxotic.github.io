@@ -64,6 +64,7 @@ class UniteCreatorAdminNotices{
 	 */
 	private function getNoticeHtml($text, $id, $isDissmissable = true, $params = array()){
 		
+				
 		$type = UniteFunctionsUC::getVal($params, "type");
 		
 		$isNoWrap = UniteFunctionsUC::getVal($params, "no-notice-wrap");
@@ -73,31 +74,15 @@ class UniteCreatorAdminNotices{
 		
 		if($isNoWrap == true)
 			$classWrap = "";
-							
-		//set color class
 		
-		$color = UniteFunctionsUC::getVal($params, "color");
-		
-		switch($color){
-			default:
-			case "error":
-			case "warning":
-			case "info":
-				$noticeClass = "notice-$color";
-			break;
-			case "doubly":
-				$noticeClass = "uc-notice-doubly";
-			break;
-		}
-		
-		$class = "notice uc-admin-notice $noticeClass";
+		$class = "notice uc-admin-notice notice-info uc-banner-type-banner";
 		
 		if($type == self::TYPE_ADVANCED)
 			$class .= " uc-notice-advanced";
 				
 		if($type == self::TYPE_BANNER){
-			$class = "notice uc-admin-notice uc-type-banner";
-				
+			$class = "notice uc-admin-notice";
+			
 			if($isNoWrap == true)
 				$class .= " uc-admin-notice--nowrap";
 				
@@ -124,7 +109,7 @@ class UniteCreatorAdminNotices{
 			
 			$htmlDissmiss = "\n<a class=\"uc-notice-dismiss\" href=\"{$urlDissmiss}\" aria-label=\"$textDissmissLabel\">$textDissmiss</a>\n";
 			
-			if($type == self::TYPE_BANNER)
+			if(self::TYPE_BANNER)
 				$htmlDissmiss = "\n<a class=\"uc-notice-dismiss-banner\" href=\"{$urlDissmiss}\" title=\"{$textDissmiss}\" aria-label=\"$textDissmissLabel\">X</a>\n";
 			
 		}
@@ -181,26 +166,6 @@ class UniteCreatorAdminNotices{
 		return($html);
 	}
 	
-	/**
-	 * check condition
-	 */
-	private function isConditionAllowed($notice){
-		
-		$condition = UniteFunctionsUC::getVal($notice, "condition");
-		
-		if(empty($condition))
-			return(true);
-		
-		switch($condition){
-			case "no_doubly":
-				
-				if(defined("DOUBLY_INC"))
-					return(false);
-			break;
-		}
-		
-		return(true);
-	}
 	
 	
 	/**
@@ -221,17 +186,7 @@ class UniteCreatorAdminNotices{
 			if($isDissmissed == true)
 				continue;
 			
-			//check condition
-			$isAllowed = $this->isConditionAllowed($notice);
-			
-			if($isAllowed == false)
-				return(false);
-						
 			$htmlNotices = $this->getNoticeHtml($text, $id, true, $notice);			
-			
-			if(empty($htmlNotices))
-				continue;
-			
 			echo $htmlNotices;
 		}
 		
@@ -258,10 +213,6 @@ class UniteCreatorAdminNotices{
 				padding:0px !important;
 				border:none !important;
 				background-color:transparent !important;
-			}
-			
-			.uc-admin-notice.uc-type-banner{
-				border-left-width:1px !important;
 			}
 			
 			.uc-admin-notice .uc-notice-advanced-wrapper span{
@@ -340,30 +291,6 @@ class UniteCreatorAdminNotices{
  				color:#ffffff; 				
  			}
  			
- 			.uc-notice-doubly{
- 				border-left-color:#ff6a00 !important;
- 				border-color:#ff6a00 !important;
- 			}
- 			
- 			.uc-notice-header{
- 				font-weight:bold;
- 				font-size:16px;
- 			}
- 			
- 			.uc-notice-middle{
- 				padding-top:10px;
- 				padding-bottom:18px;
- 			}
- 			
- 			.uc-notice-wrapper{
- 				display:flex;
- 			}
- 			
- 			.uc-notice-left{
- 				padding-left:15px;
- 				padding-right:30px;
- 			}
- 			
 		</style>
 		<?php 
 	}
@@ -389,7 +316,7 @@ class UniteCreatorAdminNotices{
 	* check dissmiss action
 	*/
 	public function checkDissmissAction(){
-				
+		
 		$dissmissKey = UniteFunctionsUC::getPostGetVariable("uc_dismiss_notice","", UniteFunctionsUC::SANITIZE_KEY);
 		if(empty($dissmissKey))
 			return(false);
@@ -410,15 +337,14 @@ class UniteCreatorAdminNotices{
 	 * init
 	 */
 	private function init(){
-				
+		
 		if(self::$isInited == true)
 			return(false);	
 					
 		if(GlobalsUC::$is_admin == false)
 			return(false);
-		
-		$this->checkDissmissAction();
-		
+				
+		UniteProviderFunctionsUC::addAction("admin_init", array($this, "checkDissmissAction"));
 		
 		UniteProviderFunctionsUC::addFilter("admin_notices", array($this, "putAdminNotices"),10,3);
 		

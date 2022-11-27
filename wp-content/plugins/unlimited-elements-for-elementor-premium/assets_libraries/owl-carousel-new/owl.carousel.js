@@ -1,5 +1,5 @@
 /**
-* Owl Carousel v2.3.8 - UE12
+* Owl Carousel v2.3.7 - UE8
 * Copyright 2013-2018 David Deutsch
 * Licensed under: SEE LICENSE IN https://github.com/OwlCarousel2/OwlCarousel2/blob/master/LICENSE
 */
@@ -177,15 +177,15 @@
 			switch(this.settings.paddingType){
 				case "left":
 				case "right":
-				var width = Math.floor((this.width() / this.settings.items).toFixed(3) - this.settings.margin);
+				var width = (this.width() / this.settings.items).toFixed(3) - this.settings.margin;
 				break;
 				
 				break;
 				case "both":
-				var width = Math.floor((this.width() / this.settings.items).toFixed(3) - this.settings.margin);
+				var width = (this.width() / this.settings.items).toFixed(3) - this.settings.margin;
 				break;
 				default:	//no stage padding
-				var width = Math.floor((this.width() / this.settings.items).toFixed(3) - this.settings.margin);
+				var width = (this.width() / this.settings.items).toFixed(3) - this.settings.margin;
 				break;
 			}
 			
@@ -240,7 +240,6 @@
 		items: 3,
 		loop: false,
 		center: false,
-		disableNoncenteredLinks: false,
 		rewind: false,
 		checkVisibility: true,
 		setActiveClass: true,
@@ -332,7 +331,7 @@
 	Owl.Workers = [ {
 		filter: [ 'width', 'settings' ],
 		run: function() {		//set total width
-			this._width = Math.floor(this.$element.width());
+			this._width = this.$element.width();
 			
 			debug("set total width this._width: "+this._width);
 		}
@@ -653,29 +652,8 @@
 			this.$stage.children(':eq(' + matches.join('), :eq(') + ')').addClass('active');
 			
 			this.$stage.children('.center').removeClass('center');
-			
 			if (this.settings.center) {
-				
 				this.$stage.children().eq(this.current()).addClass('center');
-				
-				if(this.settings.disableNoncenteredLinks == false)
-				return(false)
-				
-				var nonCenteredLinks = this.$stage.children().not('.center').find('a');
-				var centeredLinks = this.$stage.find('.center a');
-				
-				nonCenteredLinks.css({
-					'cursor': 'default',
-					'pointer-events': 'none'
-				});
-				
-				centeredLinks.css({
-					'cursor': '',
-					'pointer-events': ''
-				});
-				
-				
-				
 			}
 		}
 	}, {
@@ -811,30 +789,6 @@
 		
 		this.leave('initializing');
 		this.trigger('initialized');
-		
-		
-		//protection agains lasy load       
-		this.$stage.children().each(function(){	
-			
-			var objChild = jQuery(this);          
-			var objChildImg = objChild.find('img');
-			
-			if(objChildImg.hasClass("lazyloading") == false)
-			return(false);
-			
-			objChildImg.removeClass("lazyloading");
-			
-			var srcLazy = objChildImg.data("src");
-			
-			if(srcLazy)
-			objChildImg.attr("src", srcLazy);
-			
-			var keyLazy = "data-src";  	 
-			
-			if(keyLazy && keyLazy != "")
-			jQuery.removeData(objChildImg, keyLazy);
-			
-		});
 	};
 	
 	/**
@@ -1071,10 +1025,10 @@
 		}
 		
 		this.invalidate('width');
-		
+
 		//reset outer stage width
 		this.$stage.parent().css({'width': ''});
-		
+
 		this.refresh();
 		this.update();
 		
@@ -1459,7 +1413,7 @@
 				iterator = this._items.length;
 				if (iterator) {
 					reciprocalItemsWidth = this._items[--iterator].width();
-					elementWidth = Math.floor(this.$element.width());
+					elementWidth = this.$element.width();
 					while (iterator--) {
 						reciprocalItemsWidth += this._items[iterator].width() + this.settings.margin;
 						if (reciprocalItemsWidth > elementWidth) {
@@ -1725,7 +1679,7 @@
 			}
 			
 			if(content && content.length){
-				
+			
 				content.filter(function() {
 					return this.nodeType === 1;
 				}).each($.proxy(function(index, item) {
@@ -1865,15 +1819,15 @@
 			
 			if(this.is('resizing'))
 			return(false);
-			
+
 			var carousel = this.$element;
 			
 			if(this.isElementInViewport(carousel) == true)
 			return(false);
-			
+
 			var carouselOffsetTop = this.$element.offset().top;
 			var offset = this.settings.scrollToHeadOffset;
-			
+
 			this.scrollToTop(carouselOffsetTop, offset);
 		}   
 		
@@ -1980,22 +1934,19 @@
 		* @returns {Event} - The event arguments.
 		*/
 		Owl.prototype.trigger = function(name, data, namespace, state, enter) {
-			
 			var status = {
 				item: { count: this._items.length, index: this.current() }
-			}; 
-			var handler = $.camelCase(
+			}, handler = $.camelCase(
 				$.grep([ 'on', name, namespace ], function(v) { return v })
 				.join('-').toLowerCase()
-				);
-				var event = $.Event(
+				), event = $.Event(
 					[ name, 'owl', namespace || 'carousel' ].join('.').toLowerCase(),
 					$.extend({ relatedTarget: this }, status, data)
-					);		
+					);
 					
 					if (!this._supress[name]) {
 						$.each(this._plugins, function(name, plugin) {
-							if (plugin.onTrigger) {				
+							if (plugin.onTrigger) {
 								plugin.onTrigger(event);
 							}
 						});
@@ -2006,7 +1957,6 @@
 						if (this.settings && typeof this.settings[handler] === 'function') {
 							this.settings[handler].call(this, event);
 						}
-						
 					}
 					
 					return event;
@@ -2042,7 +1992,6 @@
 				* @param {Object} object - The event or state to register.
 				*/
 				Owl.prototype.register = function(object) {
-					
 					if (object.type === Owl.Type.Event) {
 						if (!$.event.special[object.name]) {
 							$.event.special[object.name] = {};
@@ -2984,7 +2933,7 @@
 						this.core.speed(0);
 						
 						if(!oldSpeed)
-						oldSpeed = 1000;
+							oldSpeed = 1000;
 						
 						var left,
 						clear = $.proxy(this.clear, this),
@@ -2992,13 +2941,13 @@
 						next = this.core.$stage.children().eq(this.next),
 						incoming = this.core.settings.animateIn,
 						outgoing = this.core.settings.animateOut;
-						
+												
 						if (this.core.current() === this.previous) {
 							return;
 						}
 						
 						if (outgoing) {
-							
+
 							previous.one($.support.animation.end, clear).addClass('animated owl-animated-out').addClass(outgoing);
 							
 							var objAnimation = jQuery('.'+outgoing);
@@ -3009,7 +2958,7 @@
 								this.core.speed(oldSpeed);
 								return;
 							}
-							
+								
 							left = this.core.coordinates(this.previous) - this.core.coordinates(this.next);
 							previous.css( { 'left': left + 'px' } )
 							
@@ -3055,7 +3004,7 @@
 				* @author Bartosz Wojciechowski
 				* @author Artus Kolanowski
 				* @author David Deutsch
-				* @author Tom De CaluwГђ   Гђ ГђвЂ Гђ Гўв‚¬ЕЎГђВЎГ‘в„ўГђ  ГђВІГђвЂљГўвЂћВўГђ Гўв‚¬в„ўГђвЂ™Г‚В©
+				* @author Tom De CaluwР“В©
 				* @license The MIT License (MIT)
 				*/
 				;(function($, window, document, undefined) {
@@ -3106,30 +3055,17 @@
 						* @type {Object}
 						*/
 						this._handlers = {
-							'change.owl.carousel': $.proxy(function(e) {
-								
-								if(e.property.name === 'position' && this._core.settings.autoplay == true) {
-									// Reset the timer. This code is triggered when the position
-									// of the carousel was changed through user interaction.
-									window.clearTimeout(this._call);
-									
-								}
-							}, this),
 							'changed.owl.carousel': $.proxy(function(e) {
-								
 								if (e.namespace && e.property.name === 'settings') {
 									if (this._core.settings.autoplay) {
 										this.play();
 									} else {
 										this.stop();
 									}
-								} else if (e.namespace && e.property.name === 'position' && this._core.settings.autoplay == true) {
-									// set new timer after reset		
-									this._call = window.setTimeout($.proxy(this._next, this, this._core.settings.autoplaySpeed), this._core.settings.autoplayTimeout);
-									// this._call = window.setTimeout(
-									// 	$.proxy(this._next, this, this._core.settings.autoplaySpeed),
-									// 	this._core.settings.autoplayTimeout * (Math.round(this.read() / this._core.settings.autoplayTimeout) + 1) - this.read()
-									// 	);
+								} else if (e.namespace && e.property.name === 'position' && this._paused) {
+									// Reset the timer. This code is triggered when the position
+									// of the carousel was changed through user interaction.
+									this._time = 0;
 								}
 							}, this),
 							'initialized.owl.carousel': $.proxy(function(e) {
@@ -3193,9 +3129,6 @@
 					* @param {Number} [speed] - The animation speed for the animations.
 					*/
 					Autoplay.prototype._next = function(speed) {
-						
-						window.clearTimeout(this._call);
-						
 						this._call = window.setTimeout(
 							$.proxy(this._next, this, speed),
 							this._timeout * (Math.round(this.read() / this._timeout) + 1) - this.read()
@@ -3224,9 +3157,6 @@
 						Autoplay.prototype.play = function(timeout, speed) {
 							var elapsed;
 							
-							if(this._core.settings.autoplay == false)
-							return(false)
-							
 							if (!this._core.is('rotating')) {
 								this._core.enter('rotating');
 							}
@@ -3236,7 +3166,7 @@
 							// Calculate the elapsed time since the last transition. If the carousel
 							// wasn't playing this calculation will yield zero.
 							elapsed = Math.min(this._time % (this._timeout || timeout), timeout);
-							window.clearTimeout(this._call);
+							
 							if (this._paused) {
 								// Start the clock.
 								this._time = this.read();
@@ -3280,7 +3210,6 @@
 								
 								window.clearTimeout(this._call);
 							}
-							window.clearTimeout(this._call);
 						};
 						
 						/**
@@ -3372,11 +3301,6 @@
 							};
 							
 							/**
-							* check if item changed
-							* 
-							*/
-							var isChanged = false;
-							/**
 							* All event handlers.
 							* @protected
 							* @type {Object}
@@ -3420,34 +3344,6 @@
 										this.draw();
 										this._core.trigger('refreshed', null, 'navigation');
 									}
-								}, this),
-								'mousewheel wheel DOMMouseScroll MozMousePixelScroll': $.proxy( function(e) {
-									
-									if(this._core.settings.mousewheelControl == false)
-										return(true);
-									
-									var owlCarousel = this.$element;			
-									
-									if (isChanged == false) {
-										
-										if (e.originalEvent.deltaY>0 && isChanged == false)
-										owlCarousel.trigger('next.owl');
-										
-										if(e.originalEvent.deltaY<0 && isChanged == false)
-										owlCarousel.trigger('prev.owl');										
-										
-										isChanged = true;
-										
-									}
-									
-									clearTimeout($.data(this, 'timer'));
-									
-									$.data(this, 'timer', setTimeout(function() {
-										
-										isChanged = false;
-										
-									}, 250));
-									
 								}, this)
 							};
 							
@@ -3485,8 +3381,7 @@
 							dotsEach: false,
 							dotsData: false,
 							dotsSpeed: false,
-							dotsContainer: false,
-							mousewheelControl: false
+							dotsContainer: false
 						};
 						
 						/**
@@ -3499,7 +3394,7 @@
 							
 							// create DOM structure for relative navigation
 							this._controls.$relative = (settings.navContainer ? $(settings.navContainer)
-							: $('<div>').addClass(settings.navContainerClass).appendTo(this.$element));
+							: $('<div>').addClass(settings.navContainerClass).appendTo(this.$element)).addClass('disabled');
 							
 							this._controls.$previous = $('<' + settings.navElement + ' value="previous item" title="previous item">')
 							.addClass(settings.navClass[0])
@@ -3538,7 +3433,7 @@
 							}
 							
 							this._controls.$absolute = (settings.dotsContainer ? $(settings.dotsContainer)
-							: $('<div>').addClass(settings.dotsClass).appendTo(this.$element));
+							: $('<div>').addClass(settings.dotsClass).appendTo(this.$element)).addClass('disabled');
 							
 							this._controls.$absolute.on('click', 'button', $.proxy(function(e) {
 								var index = $(e.target).parent().is(this._controls.$absolute)
@@ -3642,23 +3537,14 @@
 							index = this._core.relative(this._core.current()),
 							loop = settings.loop || settings.rewind;
 							
-							//remove arrows from DOM when they are disabled
-							var owlItems = this._core.$stage.children();
-							var owlUEItems = owlItems.children();
-							var owlUEItemsChildren = owlUEItems.children();
+							this._controls.$relative.toggleClass('disabled', !settings.nav || disabled);
 							
-							if(settings.nav == false || this._core.items().length == 0 || owlUEItemsChildren.length == 0)
-							this._controls.$relative.remove();
-							
-							if (settings.nav == true) {
+							if (settings.nav) {
 								this._controls.$previous.toggleClass('disabled', !loop && index <= this._core.minimum(true));
 								this._controls.$next.toggleClass('disabled', !loop && index >= this._core.maximum(true));
 							}
 							
-							//remove dots from DOM when they are disabled
-							if(settings.dots == false || this._core.items().length == 0 || owlUEItemsChildren.length == 0){
-								this._controls.$absolute.remove();
-							}
+							this._controls.$absolute.toggleClass('disabled', !settings.dots || disabled);
 							
 							if (settings.dots) {
 								difference = this._pages.length - this._controls.$absolute.children().length;

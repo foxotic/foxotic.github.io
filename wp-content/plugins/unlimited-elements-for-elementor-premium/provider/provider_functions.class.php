@@ -88,8 +88,6 @@ class UniteProviderFunctionsUC{
 		
 		GlobalsUC::$url_default_addon_icon = GlobalsUC::$url_provider."assets/images/icon_default_addon.png";
 		
-		GlobalsUC::$is_ssl = is_ssl();
-		
 		self::setAssetsPath();
 		
 		GlobalsUC::$url_assets_libraries = GlobalsUC::$urlPlugin."assets_libraries/";
@@ -99,7 +97,9 @@ class UniteProviderFunctionsUC{
 		GlobalsUC::$url_assets_internal = GlobalsUC::$urlPlugin."assets_internal/";
 		
 		GlobalsUC::$layoutShortcodeName = "blox_layout";
-				
+		
+		GlobalsUC::$is_ssl = is_ssl();
+		
 		GlobalsUC::$enableWebCatalog = true;
 		
 		$window = UniteFunctionsUC::getGetVar("ucwindow","",UniteFunctionsUC::SANITIZE_KEY);
@@ -119,23 +119,14 @@ class UniteProviderFunctionsUC{
 		
 		$arrUploads = wp_upload_dir();
 		
-		
 		$uploadsBaseDir = UniteFunctionsUC::getVal($arrUploads, "basedir");
 		$uploadsBaseUrl = UniteFunctionsUC::getVal($arrUploads, "baseurl");
-
-		//convert to ssl if needed
-		if(GlobalsUC::$is_ssl == true)
-			$uploadsBaseUrl = str_replace("http://", "https://", $uploadsBaseUrl);
-			
-		
+						
 		$urlBase = null;
 		if(is_dir($uploadsBaseDir)){
 			$pathBase = UniteFunctionsUC::addPathEndingSlash($uploadsBaseDir);
 			$urlBase = UniteFunctionsUC::addPathEndingSlash($uploadsBaseUrl);
 		}
-		
-		
-		
 		
 		//make base path
 		$pathAssets = $pathBase.$dirAssets."/";
@@ -147,7 +138,6 @@ class UniteProviderFunctionsUC{
 		
 		//--- make url assets
 		$urlAssets = $urlBase.$dirAssets."/";
-		
 		
 		if(empty($pathAssets))
 			UniteFunctionsUC::throwError("Cannot set assets path");
@@ -595,27 +585,15 @@ class UniteProviderFunctionsUC{
 		return($nonce);
 	}
 	
-	
 	/**
 	 * veryfy nonce
 	 */
 	public static function verifyNonce($nonce){
 		
-		
-		if(function_exists("wp_verify_nonce") == false){
-			
-			dmp("verify nonce function not found. some other plugin interrupting this call");
-			dmp("please find it in this trace by follow 'wp-content/plugins'");
-			
-			UniteFunctionsUC::showTrace();
-			exit();
-		}
-		
-		
 		$verified = wp_verify_nonce($nonce, GlobalsUC::PLUGIN_NAME."_actions");
 		if($verified == false)
 			UniteFunctionsUC::throwError("Action security failed, please refresh the page and try again.");
-		
+	
 	}
 	
 	

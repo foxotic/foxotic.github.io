@@ -34,9 +34,6 @@ class UniteCreatorElementorWidget extends Widget_Base {
         
     const DEBUG_SETTINGS_VALUES = false;
     
-    const DEBUG_CONTROLS = false;
-    const DEBUG_ITEMS_CONTROLS = false;
-    
     
     private function a_______INIT______(){}
     
@@ -681,16 +678,17 @@ class UniteCreatorElementorWidget extends Widget_Base {
 		
     	$widgetName = $this->objAddon->getName();
     	
+    	/*
+    	if($widgetName == "your_widget"){
     	
-    	if(self::DEBUG_ITEMS_CONTROLS && $this->isBGWidget == false){
-    	
-	    	dmp("---- debug items repeater ----");
+	    	dmp("debug repeater");
 	    	dmp($widgetName);
 	    	dmp($controlName);
 	    	dmp($arrItemsControl);
+	    	exit();
     	}
-    	
-	    	
+    	*/
+	   	
          $this->objControls->add_control($controlName, $arrItemsControl);
           
          if($this->isBGWidget == false)
@@ -959,14 +957,7 @@ class UniteCreatorElementorWidget extends Widget_Base {
     			$controlType = Controls_Manager::TEXT;
     			 
     		break;
-    		case UniteCreatorDialogParam::PARAM_POST_SELECT:
-    			
-    			$controlType = "uc_select_special";
-    			
-    		break;
-    		case UniteCreatorDialogParam::PARAM_TERM_SELECT:
-    			$controlType = "uc_select_special";
-    		break;
+    		
     		default:
     			
     			$addonTitle = $this->objAddon->getTitle();
@@ -995,6 +986,30 @@ class UniteCreatorElementorWidget extends Widget_Base {
     	
     	//add options
     	switch($type){
+    		case UniteCreatorDialogParam::PARAM_SPECIAL:
+    			
+    			/*
+    			$attributeType = UniteFunctionsUC::getVal($param, "attribute_type");
+    			
+    			switch($attributeType){
+    				case "refresh":
+
+    					$strNames = UniteFunctionsUC::getVal($param, "refresh_attribute_names");
+    					
+    					$arrControl["type"] = Controls_Manager::RAW_HTML;
+    					$arrControl["label"] = "";
+    					$arrControl["raw"] = "<div class='uc-refresh-widget-wrapper'>
+    						<input type='text' class='uc-refresh-widget-input' data-setting='{$name}' value='' data-attribute-names='{$strNames}'>
+    						names: $strNames
+    					</div>";
+    					
+    				break;
+    				default:
+    				break;
+    			}
+    			*/
+    			
+    		break;
     		case UniteCreatorDialogParam::PARAM_HEADING:
     			
     			$arrControl["label"] = $defaultValue;
@@ -1027,33 +1042,6 @@ class UniteCreatorElementorWidget extends Widget_Base {
     			
 				$arrControl["addparams"] = $addParams;
 				
-			break;
-    		case UniteCreatorDialogParam::PARAM_POST_SELECT:
-    			
-    			$placeholder = "All--Posts";
-    			
-				$loaderText = __("Loading Data...", "unlimited-elements-for-elementor");
-				$loaderText = UniteFunctionsUC::encodeContent($loaderText);
-    			
-    			$addParams = "class=unite-setting-special-select data-settingtype=post_ids data-loadertext={$loaderText} data-placeholdertext={$placeholder} data-issingle=true";
-    			
-				$arrControl["addparams"] = $addParams;
-				$arrControl["label_block"] = true;
-    			
-    		break;
-    		case UniteCreatorDialogParam::PARAM_TERM_SELECT:
-    			
-    			$placeholder = "All--Terms";
-				
-    			$loaderText = __("Loading Data...", "unlimited-elements-for-elementor");
-				$loaderText = UniteFunctionsUC::encodeContent($loaderText);
-    			
-    			$addParams = "class=unite-setting-special-select data-settingtype=post_ids data-loadertext={$loaderText} data-placeholdertext={$placeholder} data-issingle=true data-datatype=terms";
-    			
-				$arrControl["addparams"] = $addParams;
-				$arrControl["label_block"] = true;
-    			
-    		break;
     		case "select2":
 			case UniteCreatorDialogParam::PARAM_MULTIPLE_SELECT:
     		case UniteCreatorDialogParam::PARAM_DROPDOWN:
@@ -1841,16 +1829,8 @@ class UniteCreatorElementorWidget extends Widget_Base {
     			
     			$arrControl = $this->getControlArrayUC($param);
     			
+		    	
     			$type = UniteFunctionsUC::getVal($param, "type");
-
-				if(self::DEBUG_CONTROLS && $this->isBGWidget == false){
-				
-					dmp("--- debug control ---");
-					dmp($type);
-					dmp($name);
-					dmp($arrControl);
-				}
-    			
     			
     			switch($type){
     				case UniteCreatorDialogParam::PARAM_BACKGROUND:
@@ -2468,10 +2448,10 @@ class UniteCreatorElementorWidget extends Widget_Base {
               
          } //end sections foreach
          
-         
+                         
           //add query controls section (post list) if exists
           if($hasPostsList == true){
-			
+
           	$forWooCommerce = UniteFunctionsUC::getVal($postListParam, "for_woocommerce_products");
           	$forWooCommerce = UniteFunctionsUC::strToBool($forWooCommerce);
           	
@@ -2485,7 +2465,7 @@ class UniteCreatorElementorWidget extends Widget_Base {
 	                'label' => $labelPosts,
 	              )
 	        );
-
+          	
           	  $this->addElementorParamUC($postListParam);
 	          
 	          $this->end_controls_section();
@@ -2562,14 +2542,6 @@ class UniteCreatorElementorWidget extends Widget_Base {
           //add debug controls
           $this->addAdvancedSectionControls($showMore, $isItemsEnabled);
           
-          
-		if(self::DEBUG_CONTROLS && $this->isBGWidget == false){
-		
-			dmp("end debug");
-			exit();
-		}
-          
-          
    }
    
    private function a__________DYNAMIC_SECTIONS_________(){}
@@ -2580,18 +2552,12 @@ class UniteCreatorElementorWidget extends Widget_Base {
      */
     private function putListingSections($listingParam){
     	
-    	
     	$objUEControls = new UniteCreatorElementorControls();
     	
     	$name = UniteFunctionsUC::getVal($listingParam, "name");
     	
     	$useFor = UniteFunctionsUC::getVal($listingParam, "use_for");
     	$isForGallery = ($useFor == "gallery");
-    	
-    	//multisource
-    	
-    	$isForItems = ($useFor == "items");
-    	
     	
     	switch($useFor){
     		case "remote":
@@ -2601,7 +2567,6 @@ class UniteCreatorElementorWidget extends Widget_Base {
     	}
     	
 		//set text prefix
-		
 		$textPrefix = __("Items ","unlimited-elements-for-elementor");		
 		if($isForGallery == true)
 			$textPrefix = __("Gallery ","unlimited-elements-for-elementor");
@@ -2613,7 +2578,8 @@ class UniteCreatorElementorWidget extends Widget_Base {
         		'condition'=>array($name."_source"=>"posts")
               )
         );
-		
+
+        
         $postParam = $listingParam;
         
         $postParam["type"] = UniteCreatorDialogParam::PARAM_POSTS_LIST;
@@ -2621,75 +2587,15 @@ class UniteCreatorElementorWidget extends Widget_Base {
         
         $this->addElementorParamUC($postParam);
            
+        
         $this->end_controls_section();
     	
-        
-        //------ terms -------------
-        
-        if($isForItems == true){
-        				
-	    	//add post section
-	        $this->start_controls_section(
-	                'uc_section_listing_terms_query', array(
-	                'label' => $textPrefix.__("Terms Query", "unlimited-elements-for-elementor"),
-	        		'condition'=>array($name."_source"=>"terms")
-	              )
-	        );
-			
-	        $termParam = $listingParam;
-	        
-	        $termParam["type"] = UniteCreatorDialogParam::PARAM_POST_TERMS;
-	        $termParam["name"] = $name."_terms";
-	        
-	        $this->addElementorParamUC($termParam);
-        
-	        $this->end_controls_section();
-        
-        //------ users -------------
-        
-	    	//add post section
-	        $this->start_controls_section(
-	                'uc_section_listing_users_query', array(
-	                'label' => $textPrefix.__("Users Query", "unlimited-elements-for-elementor"),
-	        		'condition'=>array($name."_source"=>"users")
-	              )
-	        );
-			
-	        $usersParam = $listingParam;
-	        
-	        $usersParam["type"] = UniteCreatorDialogParam::PARAM_USERS;
-	        $usersParam["name"] = $name."_users";
-	        
-	        $this->addElementorParamUC($usersParam);
-        
-	        $this->end_controls_section();
-	        
-        //------ menu -------------
-	        
-	        $this->start_controls_section(
-	                'uc_section_listing_menu_query', array(
-	                'label' => $textPrefix.__("Menu Query", "unlimited-elements-for-elementor"),
-	        		'condition'=>array($name."_source"=>"menu")
-	              )
-	        );
-			
-	        $menuParam = $listingParam;
-	        
-	        $menuParam["type"] = UniteCreatorDialogParam::PARAM_MENU;
-	        $menuParam["name"] = $name."_menu";
-	        
-	        $this->addElementorParamUC($menuParam);
-        
-	        $this->end_controls_section();
-	        
-        }
-	        
         
         //woocommerce
         
         $isWooActive = UniteCreatorWooIntegrate::isWooActive();
-        if($isWooActive == true && $isForItems == false){
-			
+        if($isWooActive == true){
+
         	//add products section
         	
 	        $this->start_controls_section(
@@ -2714,7 +2620,7 @@ class UniteCreatorElementorWidget extends Widget_Base {
         }
         
         //add the gallery repeater
-		if($isForGallery == true || $isForItems == true){
+		if($isForGallery == true){
 			
 			$objUEControls->addGalleryImageVideoRepeater($this, $textPrefix, $name, $listingParam, $this->objAddon);
 			
@@ -3626,9 +3532,9 @@ class UniteCreatorElementorWidget extends Widget_Base {
 	    		$arrItems = $this->modifyArrItemsParamsValuesUC($arrItems, $itemsType);
 	    		 
 	    	}
-	   	
+	    		    	
 	    	$arrMainParamValues = $this->getArrMainParamValuesUC($arrValues, $objAddon);
-	    		
+	    	
 	    	//transfer the pagination type
     		$arrPostListParam = $objAddon->getParamByType(UniteCreatorDialogParam::PARAM_POSTS_LIST);
     		

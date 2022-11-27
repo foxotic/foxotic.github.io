@@ -52,6 +52,7 @@ class UniteCreatorPluginBase extends UniteCreatorFilters{
 		UniteProviderFunctionsUC::addAction(GlobalsProviderUC::ACTION_RUN_ADMIN, array($this,"runAdmin"));
 		UniteProviderFunctionsUC::addAction(GlobalsProviderUC::ACTION_RUN_FRONT, array($this,"runFront"));
 		
+		
 	}
 	
 	

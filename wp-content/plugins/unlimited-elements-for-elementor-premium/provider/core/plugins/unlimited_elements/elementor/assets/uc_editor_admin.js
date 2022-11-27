@@ -142,24 +142,11 @@ function UniteCreatorElementorEditorAdmin(){
 		var objPanel = getObjElementorPanel();
 		var prefix = selectPostType.data("settingprefix");
 		
-		var settingKey = prefix+"_taxonomy";
-		
-		var selectPostTaxonomy = objPanel.find("select[data-setting='"+settingKey+"']");
-		
-		selectPostTaxonomy.attr("multiple", true);
-		selectPostTaxonomy.css("height", "50px");
+		var selectPostTaxonomy = objPanel.find("select[data-setting='"+prefix+"_taxonomy']");
 		
 		var postType = selectPostType.val();
 		var selectedTax = selectPostTaxonomy.val();
 		
-		//fix the value that could be array
-		var objSettings = getLastOpenedWidgetSettings();
-		var realValue = getVal(objSettings, settingKey);
-		
-		if(typeof realValue == "object"){
-			selectedTax = realValue;
-			selectPostTaxonomy.val(realValue);
-		}
 		
 		var objTax = getVal(dataPostTypes, postType);
 		if(!objTax)
@@ -188,19 +175,14 @@ function UniteCreatorElementorEditorAdmin(){
 		
 		//check and change current tax
 		
-		if(typeof selectedTax != "string" && selectedTax.length)
-			selectedTax = selectedTax[0];
-		
 		var isCurrentTaxRelevant = objTax.hasOwnProperty(selectedTax);
-		
 		if(isCurrentTaxRelevant == false && firstVisibleOption){
 			
 			selectPostTaxonomy.val(firstVisibleOption).trigger("change");
 		}
-		
+			
 		
 	}
-	
 	
 	/**
 	 * fill category select
@@ -288,7 +270,7 @@ function UniteCreatorElementorEditorAdmin(){
 		
 		var objSelectPostCategory = objPanel.find("select[data-setting='"+prefix+"_category']");
 		var objSelectExcludeTerms = objPanel.find("select[data-setting='"+prefix+"_exclude_terms']");
-		
+				
 		onPostTypeSelectChange_fillCategorySelect(objSelectPostCategory, selectPostType, dataPostTypes, "All Terms");
 		
 		onPostTypeSelectChange_fillCategorySelect(objSelectExcludeTerms, selectPostType, dataPostTypes, "Select Terms To Exclude");
@@ -1237,17 +1219,14 @@ function UniteCreatorElementorEditorAdmin(){
 	
 	
 	function ____________BACKGROUNDS______________(){}
-	
-	
-	
+	 
 	/**
 	 * search elementor data
 	 */
 	function searchElementorData(data, id){
 		
-		
 		//get from last opened object
-		if(id && id == window.ucLastElementorModelID){
+		if(id == window.ucLastElementorModelID){
 			var objSettings = getVal(window.ucLastElementorModel, "settings");
 			var objSettingsAttributes = getVal(objSettings, "attributes");
 			
@@ -1267,44 +1246,36 @@ function UniteCreatorElementorEditorAdmin(){
 		if(!data)
 			return(false);
 		
-		var models = getVal(data, "models");
+		var isArray = jQuery.isArray(data);
 		
-		if(models && jQuery.isArray(models)){
-			
-			searchElementorData(models);
-		}
-				
+		if(isArray == false)
+			return(false);
+		
 		jQuery.each(data, function(index, item){
-			
-			var attributes = getVal(item, "attributes");
-			
-			var elType = getVal(attributes, "elType");
-			var elID = getVal(attributes, "id");
-			var elements = getVal(attributes, "elements");
 						
-			//if found
+			var elType = getVal(item, "elType");
+			var elID = getVal(item, "id");
+			var elements = getVal(item, "elements");
+			
 			if(g_searchDataID == elID){
-								
-				var objSettings = getVal(attributes, "settings");
 				
-				g_searchData = getVal(objSettings, "attributes");
-								
+				g_searchData = getVal(item, "settings");
+				
 				return(false);
 			}
-						
-			if(elType != "widget" && typeof elements == "object" && elements.length > 0){
+			
+			if(elType != "widget" && jQuery.isArray(elements) && elements.length > 0){
 				searchElementorData(elements);
 				return(true);
 			}
 			
 		});
-				
+		
 		var settingsOutput = {};
 		
 		if(g_searchData && jQuery.isArray(g_searchData) == false)
 			settingsOutput = jQuery.extend({}, g_searchData);
-		
-		
+			
 		return(settingsOutput);
 	}
 	
@@ -1312,23 +1283,28 @@ function UniteCreatorElementorEditorAdmin(){
 	 * get settings from elementor
 	 */
 	function getSettingsFromElementor(id){
-		
+				
 		var objSettings = getVal(window.ucLastElementorModel, "settings");
 
 		var cid = getVal(objSettings, "cid");
 		var attributes = getVal(objSettings, "attributes");
-		
+				
 		if(cid && attributes)
 			return(attributes);
 		
 		if(typeof elementor == "undefined")
 			return(null);
-				
-		var elements = getVal(elementor, "elements");
+		
+		var config = getVal(elementor, "config");
+		
+		if(!config)
+			return(null);
+		
+		var elements = getVal(config, "elements");
 		
 		if(!elements)
 			return(null);
-
+						
 		var objSettings = searchElementorData(elements, id);
 		
 		if(!objSettings)
@@ -1399,7 +1375,7 @@ function UniteCreatorElementorEditorAdmin(){
 	 * get repeater data
 	 */
 	function getRepeaterData(objData){
-		
+				
 		var models = getVal(objData, "models");
 		
 		if(!models || jQuery.isEmptyObject(models))
@@ -1562,7 +1538,7 @@ function UniteCreatorElementorEditorAdmin(){
 	 * check section backgrounds
 	 */
 	function onFrontElementReady(element){
-				
+		
 		var objElement = jQuery(element);
 		
 		var type = objElement.data("element_type");
@@ -1579,7 +1555,7 @@ function UniteCreatorElementorEditorAdmin(){
 		var id = objElement.data("id");
 		
 		var objSettings = getSettingsFromElementor(id);
-				
+		
 		checkElementBackground(element, objSettings);
 		
 	}
@@ -1606,7 +1582,7 @@ function UniteCreatorElementorEditorAdmin(){
 		
 		window.ucLastElementorModelID = model.id;
 		window.ucLastElementorModel = model.attributes;
-		
+				
 	}
 	
 	/**
@@ -1616,14 +1592,12 @@ function UniteCreatorElementorEditorAdmin(){
 		
 		elementor.hooks.addAction("panel/open_editor/section", onElementorSectionPanelChange);
 		elementor.hooks.addAction("panel/open_editor/container", onElementorSectionPanelChange);
-		elementor.hooks.addAction("panel/open_editor/widget", onElementorSectionPanelChange);
 		
 		//elementorFrontend.hooks.addAction( 'frontend/element_ready/global', onFrontElementReady); 
 		
-		if(typeof elementorFrontend != "undefined"){
-			elementorFrontend.hooks.addAction( 'frontend/element_ready/section', onFrontElementReady); 
-			elementorFrontend.hooks.addAction( 'frontend/element_ready/container', onFrontElementReady); 
-		}
+		elementorFrontend.hooks.addAction( 'frontend/element_ready/section', onFrontElementReady); 
+		elementorFrontend.hooks.addAction( 'frontend/element_ready/container', onFrontElementReady); 
+		
 	}
 
 	/**
@@ -1688,9 +1662,6 @@ function UniteCreatorElementorEditorAdmin(){
 	 * for section background etc
 	 */
 	this.initFrontEndInteraction = function(windowFront, elementorFrontend){
-		
-		if(typeof elementorFrontend == "undefined")
-			return(false);
 		
 		//wait for full load of front end object
 		if(typeof elementorFrontend.hooks == "undefined"){

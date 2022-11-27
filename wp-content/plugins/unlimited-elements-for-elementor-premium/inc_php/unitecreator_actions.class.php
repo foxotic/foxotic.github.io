@@ -9,7 +9,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 
 class UniteCreatorActions{
 	
-	const DEBUG_ERRORS = false;
 	
 	/**
 	 * on update layout response, function for override
@@ -69,9 +68,6 @@ class UniteCreatorActions{
 	 * on ajax action
 	 */
 	public function onAjaxAction(){
-		
-		if(self::DEBUG_ERRORS == true)
-			ini_set("display_errors","on");
 		
 		$actionType = UniteFunctionsUC::getPostGetVariable("action","",UniteFunctionsUC::SANITIZE_KEY);
 		

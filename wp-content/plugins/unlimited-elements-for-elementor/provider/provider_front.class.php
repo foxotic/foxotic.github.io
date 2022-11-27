@@ -63,12 +63,13 @@ class UniteProviderFrontUC{
 		
 		if(empty($renderTemplateID))
 			return($template);
-					
+
 		if(defined("ELEMENTOR_PATH") == false)
 			return($template);
 		
 		$pathTemplate = HelperProviderCoreUC_EL::$pathCore."template.php";
-				
+		
+		
 		return($pathTemplate);
 	}
 	
@@ -92,8 +93,12 @@ class UniteProviderFrontUC{
 		//modify output <script> tag, add module to it
 		$this->addFilter("script_loader_tag", 'onScriptTagOutput',10,3);
 		
-		//set elementor canvas accorging "GET" variable
-		$this->addFilter("template_include", "onTemplateInclude",12);	//after elementor and woo
+		if(GlobalsUC::$inDev == true){
+			
+			//set elementor canvas accorging "GET" variable
+			$this->addFilter("template_include", "onTemplateInclude");
+			
+		}
 		
 	}
 	

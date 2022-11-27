@@ -144,20 +144,9 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			$arrElementorTakenNames = array(
 				"animation_duration"=>true
 			);
-			
-			
-			$arrTypes = array();
-			
+						
 			$arrNames = array();
 			foreach($arrParams as $param){
-				
-				$type = UniteFunctionsUC::getVal($param, "type");
-				
-				if($type == UniteCreatorDialogParam::PARAM_POSTS_LIST && isset($arrTypes[$type]))
-					UniteFunctionsUC::throwError("There should be only one post list in attributes");
-				
-				
-				$arrTypes[$type] = true;
 				
 				$name = UniteFunctionsUC::getVal($param, "name");
 				if(empty($name))
@@ -1322,7 +1311,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 * get assets url
 		 */
 		public function getUrlAssets(){
-			
 			return($this->urlAssets);
 		}
 		
