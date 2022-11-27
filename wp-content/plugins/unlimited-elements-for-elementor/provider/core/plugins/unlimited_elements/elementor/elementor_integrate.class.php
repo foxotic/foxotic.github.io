@@ -1694,6 +1694,7 @@ class UniteCreatorElementorIntegrate{
 		add_filter( 'pre_handle_404', array($this, 'checkAllowWidgetPagination' ), 11, 2 );
     	
 		//dynamic loop
+		add_action( 'elementor/frontend/container/before_render', array($this, "onBeforeRenderElement") );
 		add_action( 'elementor/frontend/section/before_render', array($this, "onBeforeRenderElement") );
 		add_action( 'elementor/frontend/column/before_render', array($this, 'onBeforeRenderElement') );
 		add_action( 'elementor/frontend/widget/before_render', array($this, 'onBeforeRenderElement') );

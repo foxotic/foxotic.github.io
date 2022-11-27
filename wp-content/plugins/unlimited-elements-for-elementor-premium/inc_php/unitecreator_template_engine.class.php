@@ -201,6 +201,65 @@ class UniteCreatorTemplateEngineWork{
 	
 	
 	/**
+	 * put html items schema
+	 */
+	public function putSchemaItems($titleKey = "title", $contentKey = "content",$schemaType = "faq"){
+		
+		if(empty($titleKey))
+			$titleKey = "title";
+		
+		if(empty($contentKey))
+			$contentKey = "content";
+
+		$arrItems = HelperUC::$operations->getArrSchema($this->arrItems, "faq",$titleKey, $contentKey);
+		
+		if(empty($arrItems))
+			return(false);
+		
+		$jsonItems = json_encode($arrItems);
+		
+		$htmlSchema = '<script type="application/ld+json">'.$jsonItems.'</script>';
+		
+		echo $htmlSchema;
+		
+		//echo htmlspecialchars($htmlSchema);	//debug
+		
+	}
+	
+	
+	/**
+	 * check and put schema items by param
+	 */
+	public function checkPutSchemaItems($paramName){
+				
+		$param = $this->addon->getParamByName($paramName);
+		
+		$type = UniteFunctionsUC::getVal($param, "type");
+		
+		if($type != UniteCreatorDialogParam::PARAM_SPECIAL)
+			return(false);
+			
+		$arrValues = UniteFunctionsUC::getVal($param, "value");
+		
+		if(empty($arrValues))
+			return(false);
+			
+		$isEnable = UniteFunctionsUC::getVal($arrValues, $paramName."_enable");
+		$isEnable = UniteFunctionsUC::strToBool($isEnable);
+		
+		if($isEnable == false)
+			return(false);
+			
+		$titleName = UniteFunctionsUC::getVal($param, "schema_title_name","title");
+		$contentName = UniteFunctionsUC::getVal($param, "schema_content_name","content");
+		
+		$this->putSchemaItems($titleName, $contentName);
+		
+		
+	}
+	
+	
+	/**
 	 * put font override
 	 */
 	public function putFontOverride($name, $selector, $useID = false){
@@ -517,7 +576,7 @@ class UniteCreatorTemplateEngineWork{
 	/**
 	 * get post terms
 	 */
-	public function getPostTerms($postID, $taxonomy, $addCustomFields = false, $type = ""){
+	public function getPostTerms($postID, $taxonomy, $addCustomFields = false, $type = "", $maxTerms = null){
 		
 		dmp("no terms in this platform");
 		
@@ -767,7 +826,7 @@ class UniteCreatorTemplateEngineWork{
 	 * output elementor template by id
 	 */
 	public function putElementorTemplate($templateID){
-				
+		
 		HelperProviderCoreUC_EL::putElementorTemplate($templateID);
 		
 	}
@@ -905,6 +964,8 @@ class UniteCreatorTemplateEngineWork{
 			break;
 			case "get_term_image":
 				
+				//termID, meta key
+				
 				$arrImage = UniteFunctionsWPUC::getTermImage($arg1, $arg2);
 				
 				return($arrImage);
@@ -961,7 +1022,7 @@ class UniteCreatorTemplateEngineWork{
 				if(empty($objUser))
 					return(null);
 				
-				$userData = UniteFunctionsWPUC::getUserData($objUser);
+				$userData = UniteFunctionsWPUC::getUserData($objUser,$arg2,$arg3);
 				
 				return($userData);
 				
@@ -991,6 +1052,47 @@ class UniteCreatorTemplateEngineWork{
 				
 				HelperHtmlUC::putDocReadyEndJS($widgetID);
 				
+			break;
+			case "get_product_attributes":
+				
+				$objWoo = new UniteCreatorWooIntegrate();
+				
+				$arrAttributes = $objWoo->getProductAttributes($arg1);
+				
+				return($arrAttributes);
+				
+			break;
+			case "get_current_term_id":
+				
+				$termID = UniteFunctionsWPUC::getCurrentTermID();
+				
+				return($termID);
+			break;
+			case "put_next_post_link":
+				
+				next_post_link();
+				
+			break;
+			case "put_prev_post_link":
+				
+				previous_post_link();
+				
+			break;
+			case "get_nextprev_post_data":
+				
+				$data = UniteFunctionsWPUC::getNextPrevPostData($arg1, $arg2);
+				
+				return($data);
+			break;
+			case "put_schema_items_json":
+				
+					//$arg1- titleKey, $arg2 - contentKey, $arg3 - schemaName
+					
+					$this->putSchemaItems($arg1, $arg2, $arg3);
+			break;
+			case "put_schema_items_json_byparam":
+				
+					$this->checkPutSchemaItems($arg1);
 			break;
 			default:
 				
@@ -1167,12 +1269,16 @@ class UniteCreatorTemplateEngineWork{
 		
 		if(class_exists("Twig_Loader_Array") == false)
 			UniteFunctionsUC::throwError("Twig template engine not loaded. Please check if it collides with some other plugin that also loading twig engine.");
-			
+		
 		$loader = new Twig_Loader_Array($this->arrTemplates);
 		
 		$arrOptions = array();
 		$arrOptions["debug"] = true;
-				
+		
+		if(class_exists("Twig_Environment") == false)
+			UniteFunctionsUC::throwError("You have some other plugin that loaded another version of twig. It's uncompatable with unlimited elements unfortunatelly.");
+		
+		
 		$this->twig = new Twig_Environment($loader, $arrOptions);
 		$this->twig->addExtension(new Twig_Extension_Debug());
 		

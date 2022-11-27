@@ -47,8 +47,10 @@ $folderProvider = $folderIncludes."../../provider/";
 
 	//include composer - twig
 	$isTwigExists = interface_exists("Twig_LoaderInterface");
-	
-	if($isTwigExists == false)
+		
+	if($isTwigExists == false){
 		require $folderIncludes."../../vendor/autoload.php";
-	
+				
+	}	
+		
 	

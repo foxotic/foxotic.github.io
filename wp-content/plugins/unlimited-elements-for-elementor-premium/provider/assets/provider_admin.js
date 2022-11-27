@@ -657,7 +657,7 @@ function UniteProviderAdminUC(){
 	 * init taxonomy setting
 	 */
 	function initTaxonomyTypeSetting(selectPostType){
-				
+		
 		if(selectPostType.length == 0)
 			return(false);
 				
@@ -670,10 +670,10 @@ function UniteProviderAdminUC(){
 			throw new Error("unable to find post list setting parent");
 				
 		var selectPostTaxonomy = objParent.find(".unite-setting-post-taxonomy");
-				
+		
 		if(selectPostTaxonomy.length == 0)
 			return(false);
-		
+				
 		var dataPostTypes = selectPostType.data("arrposttypes");
 		
 		if(typeof dataPostTypes == "string"){

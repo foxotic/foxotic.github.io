@@ -10,6 +10,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		private static $db;
 		private static $objAcfIntegrate;
 		private static $cacheTermCustomFields = array();
+		private static $cacheUserCustomFields = array();
 		private static $cacheTermParents = array();
 		
 		private static $arrTermParentsCache = array();
@@ -1341,18 +1342,17 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			if(isset(self::$cacheTermCustomFields[$cacheKey]))
 				return(self::$cacheTermCustomFields[$cacheKey]);
-			
-			$prefix = null;
-			if($addPrefixes == true)
-				$prefix = "cf_";
-			
+						
 			$isAcfActive = UniteCreatorAcfIntegrate::isAcfActive();
 			
-			if($isAcfActive == false)
-				return(array());
-							
+			if($isAcfActive == false){
+				$arrMeta = self::getTermMeta($termID, $addPrefixes);
+				
+				return($arrMeta);
+			}
+			
 			$objAcf = self::getObjAcfIntegrate();
-			$arrCustomFields = $objAcf->getAcfFields($termID, "term");
+			$arrCustomFields = $objAcf->getAcfFields($termID, "term",$addPrefixes);
 			
 			self::$cacheTermCustomFields[$cacheKey] = $arrCustomFields;
 			
@@ -1399,18 +1399,19 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 * get post custom fields
 		 * including acf
 		 */
-		public static function getPostCustomFields($postID, $addPrefixes = true){
+		public static function getPostCustomFields($postID, $addPrefixes = true, $imageSize = null){
 			
 			$prefix = null;
 			if($addPrefixes == true)
 				$prefix = "cf_";
-			
+						
 			$isAcfActive = UniteCreatorAcfIntegrate::isAcfActive();
 			
 			//get acf
 			if($isAcfActive){
 				$objAcf = self::getObjAcfIntegrate();
-				$arrCustomFields = $objAcf->getAcfFields($postID);
+				$arrCustomFields = $objAcf->getAcfFields($postID, "post", $addPrefixes, $imageSize);
+				
 			}else{		//without acf - get regular custom fields
 								
 				$arrCustomFields = null;
@@ -1418,9 +1419,9 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 				$isPodsExists = UniteCreatorPodsIntegrate::isPodsExists();
 				if($isPodsExists){
 					$objPods = UniteCreatorPodsIntegrate::getObjPodsIntegrate();
-					$arrCustomFields = $objPods->getPodsFields($postID);
+					$arrCustomFields = $objPods->getPodsFields($postID, $addPrefixes);
 				}
-
+			
 				//handle toolset
 				$isToolsetActive = UniteCreatorToolsetIntegrate::isToolsetExists();
 				
@@ -1480,7 +1481,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		/**
 		 * get terms meta
 		 */
-		public static function getTermMeta($termID){
+		public static function getTermMeta($termID, $addPrefixes = false){
 			
 			$arrMeta = get_term_meta($termID);
 			
@@ -1494,9 +1495,12 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 				if(is_array($item) && count($item) == 1)
 					$item = $item[0];
 				
+				if($addPrefixes == true)
+					$key = "cf_".$key;
+				
 				$arrMetaOutput[$key] = $item;
 			}
-			
+						
 			return($arrMetaOutput);
 		}
 		
@@ -1504,10 +1508,25 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 * get term meta
 		 */
 		public static function getTermImage($termID, $metaKey){
-						
-			if(empty($metaKey))
+			
+			if(empty($termID) || $termID === "current")
+				$termID = self::getCurrentTermID();
+			
+			if(empty($termID))
 				return(null);
 
+			if($metaKey == "debug"){
+				
+				$arrMeta = get_term_meta($termID);
+				
+				dmp("term: $termID meta: ");
+				
+				dmp($arrMeta);
+			}
+				
+			if(empty($metaKey))
+				return(null);
+				
 			$attachmentID = get_term_meta($termID,$metaKey, true);
 			
 			if(empty($attachmentID))
@@ -1587,6 +1606,35 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			return($arrKeysOutput);
 		}
 		
+		
+		/**
+		 * get term custom field
+		 */
+		public static function getUserCustomFields($userID, $addPrefixes = true){
+			
+			$cacheKey = $termID;
+			if($addPrefixes == true)
+				$cacheKey = $userID."_prefixes";
+			
+			if(isset(self::$cacheUserCustomFields[$cacheKey]))
+				return(self::$cacheUserCustomFields[$cacheKey]);
+			
+			$isAcfActive = UniteCreatorAcfIntegrate::isAcfActive();
+			
+			if($isAcfActive == false){
+				
+				$arrMeta = self::getUserMeta($userID,array(),$addPrefixes);
+				
+				return($arrMeta);
+			}
+			
+			$objAcf = self::getObjAcfIntegrate();
+			$arrCustomFields = $objAcf->getAcfFields($userID, "user",$addPrefixes);
+			
+			self::$cacheUserCustomFields[$cacheKey] = $arrCustomFields;
+			
+			return($arrCustomFields);
+		}
 		
 		
 		public static function a__________POST_GETTERS__________(){}
@@ -1928,7 +1976,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			$categoryExcludeChildren = UniteFunctionsUC::strToBool($categoryExcludeChildren);
 			
 			$arrTax = self::getPosts_getTaxQuery($category, $categoryRelation, $categoryIncludeChildren, $excludeCategory, $categoryExcludeChildren);
-						
 			
 			if($isTaxonly === true){
 				if(!empty($arrTax)){
@@ -2187,6 +2234,44 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			return($content);
 		}
+		
+		/**
+		 * get next or previous post
+		 */
+		public static function getNextPrevPostData($type = "next", $taxonomy = "category"){
+			
+			if(empty($taxonomy))
+				$taxonomy = "category";
+			
+			if(empty($type))
+				$type = "next";
+				
+			$previous = !($type == "next");
+			
+			if ( $previous && is_attachment() ) {
+				$post = get_post( get_post()->post_parent );
+			} else {
+				$in_same_term = false;
+				$excluded_terms = '';
+				
+				$post = get_adjacent_post( $in_same_term, $excluded_terms, $previous, $taxonomy );
+			}
+			
+			if(empty($post))
+				return(null);
+				
+			$title = $post->post_title;
+			
+			$link = get_permalink($post);
+			
+			$output = array();
+			
+			$output["title"] = $title;
+			$output["link"] = $link;
+			
+			return($output);
+		}
+		
 		
 		public static function a__________POST_ACTIONS_________(){}
 		
@@ -2719,6 +2804,30 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		
 		public static function a___________USER_DATA__________(){}
 		
+		
+		/**
+		 *
+		 * validate permission that the user is admin, and can manage options.
+		 */
+		public static function isAdminPermissions(){
+			
+			if( is_admin() &&  current_user_can("manage_options") )
+				return(true);
+		
+			return(false);
+		}
+		
+		/**
+		 * check if current user has some permissions
+		 */
+		public static function isCurrentUserHasPermissions(){
+			
+			$canEdit = current_user_can("manage_options");
+			
+			return($canEdit);
+		}
+		
+		
 		/**
 		 * get keys of user meta
 		 */
@@ -2776,7 +2885,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		/**
 		 * get user meta
 		 */
-		public static function getUserMeta($userID, $arrMetaKeys = null){
+		public static function getUserMeta($userID, $arrMetaKeys = null, $addPrefixed = false){
 			
 			$arrMeta = get_user_meta($userID,'',true);
 			
@@ -2808,6 +2917,9 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 					if(!empty($arrOpened))
 						$metaValue = $arrOpened;
 				}
+				
+				if($addPrefixed == true)
+					$key = "cf_".$key;
 				
 				$arrOutput[$key] = $metaValue;
 			}
@@ -2846,13 +2958,16 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 */
 		public static function getUserData($objUser, $getMeta = false, $getAvatar = false, $arrMetaKeys = null){
 			
+			if(is_numeric($objUser))
+				$objUser = get_user_by("id",$objUser);
+			
 			$userID = $objUser->ID;
 						
 			$urlPosts = get_author_posts_url($userID);
 			
 			if($getMeta == true)
 				$numPosts = count_user_posts($userID);
-						
+			
 			$userData = $objUser->data;
 						
 			$userData = UniteFunctionsUC::convertStdClassToArray($userData);
@@ -2917,11 +3032,16 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 */
 		public static function getUserDataById($userID, $getMeta = false, $getAvatar = false){
 			
-			if(is_numeric($userID))
-				$objUser = get_user_by("id", $userID);
-			else
-				$objUser = get_user_by("slug", $userID);
-				
+			if($userID == "loggedin_user")
+				$objUser = wp_get_current_user();
+			else{
+				if(is_numeric($userID))
+					$objUser = get_user_by("id", $userID);
+				else
+					$objUser = get_user_by("slug", $userID);
+			}
+			
+			
 			//if emtpy user - return empty
 			if(empty($objUser)){
 				
@@ -3022,8 +3142,103 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			return($arrUsersShort);
 		}
 		
+		public static function a___________MENU__________(){}
+
+	/**
+	 * get menu items
+	 */
+	public static function getMenuItems($menuID){
+		
+		$objMenu = wp_get_nav_menu_object($menuID);
+
+		if(empty($objMenu))
+			return(array());
+
+		$arrItems = wp_get_nav_menu_items($objMenu);
+		
+		if(empty($arrItems))
+			return(array());
+				
+		$arrItemsData = array();
+		
+		foreach($arrItems as $objItem){
+						
+			$item = array();
+			
+			$url = $objItem->url;
+			$title = $objItem->title;
+			$titleAttribute = $objItem->attr_title;
+			$target = $objItem->target;
+			
+			
+			$item["id"] = $objItem->ID;
+			$item["type"] = $objItem->type_label;
+			$item["title"] = $objItem->title;
+			$item["url"] = $objItem->url;
+			$item["target"] = $objItem->target;
+			$item["title_attribute"] = $objItem->attr_title;
+			$item["description"] = $objItem->description;
+			
+			$arrClasses = $objItem->classes;
+			
+			$strClases = "";
+			if(!empty($arrClasses))
+				$strClases = implode(" ", $arrClasses);
+			
+			$strClases = trim($strClases);
+
+			$item["classes"] = $strClases;
+			
+			//make the html
+			
+			$addHtml = "";
+			if(!empty($target))
+				$addHtml .= " target='$target'";
+			
+			if(!empty($titleAttribute)){
+				$titleAttribute = esc_attr($titleAttribute);
+				$addHtml .= " title='$titleAttribute'";
+			}
+			
+			if(!empty($strClases))
+				$addHtml .= " class='$strClases'";
+			
+			
+			$html = "<a href='{$url}' {$addHtml}>{$title}</a>";
+			
+			$item["html_link"] = $html;
+			
+			
+			$arrItemsData[] = $item;
+		}
+		
+		return($arrItemsData);
+	}
+		
 		
 		public static function a___________OTHER_FUNCTIONS__________(){}
+		
+		/**
+		 * get install plugin slug
+		 */
+		public static function getInstallPluginLink($slug){
+			
+			$action = 'install-plugin';
+			$slug = 'doubly';
+			$urlInstall = wp_nonce_url(
+			    add_query_arg(
+			        array(
+			            'action' => $action,
+			            'plugin' => $slug
+			        ),
+			        admin_url( 'update.php' )
+			    ),
+			    $action.'_'.$slug
+			);
+			
+			return($urlInstall);
+		}
+		
 		
 		/**
 		 * get queried object by type
@@ -3170,18 +3385,6 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			$table = $wpdb->get_var($sql);
 		
 			if($table == $tableName)
-				return(true);
-		
-			return(false);
-		}
-		
-		/**
-		 *
-		 * validate permission that the user is admin, and can manage options.
-		 */
-		public static function isAdminPermissions(){
-		
-			if( is_admin() &&  current_user_can("manage_options") )
 				return(true);
 		
 			return(false);

@@ -1483,12 +1483,15 @@ class UniteCreatorElementorIntegrate{
 			
 			//get post id from query
 			
-			if(is_admin() == true || is_archive() == true || is_front_page() == true)
+			if(is_admin() == true || is_singular() == false)
+				return($filterValue);
+			
+			if(@is_front_page() == true)
 				return($filterValue);
 			
 			if(empty(self::$arrPostsWidgetNames))
 				return($filterValue);
-						
+			
 			$postID = $wp_query->queried_object_id;
 			
 		}
@@ -1560,8 +1563,43 @@ class UniteCreatorElementorIntegrate{
 	 */
 	public function onBeforeRenderElement($element){
 		
-		if(!empty(GlobalsUnlimitedElements::$renderingDynamicData))
+		if(!empty(GlobalsUnlimitedElements::$renderingDynamicData)){
 			HelperProviderCoreUC_EL::putDynamicLoopElementStyle($element);
+		}
+	}
+	
+	/**
+	 * on builder content data
+	 * check and switch document if available for elementor pro
+	 */
+	public function onBuilderContentData($document,$second){
+		
+		if(empty(GlobalsUnlimitedElements::$renderingDynamicData))
+			return(false);
+
+		$document = UniteFunctionsUC::getVal(GlobalsUnlimitedElements::$renderingDynamicData, "doc_to_change");
+		
+		if(empty($document))
+			return(false);
+
+		//empty the array for any case, the operation should run once
+		
+		GlobalsUnlimitedElements::$renderingDynamicData["doc_to_change"] = null;
+			
+		//check if need to switch or not
+		
+		$currentDocument = \ElementorPro\Plugin::elementor()->documents->get_current();
+		
+		if ( $currentDocument instanceof Template_With_Post_Content_interface )
+			return(false);
+		
+		if( $currentDocument instanceof Archive_Template_Interface )
+			return(false);
+
+		//if it's a page template - switch to it
+		
+		\ElementorPro\Plugin::elementor()->documents->switch_to_document( $document );			
+			
 		
 	}
 	
@@ -1656,11 +1694,14 @@ class UniteCreatorElementorIntegrate{
 		add_filter( 'pre_handle_404', array($this, 'checkAllowWidgetPagination' ), 11, 2 );
     	
 		//dynamic loop
+		add_action( 'elementor/frontend/container/before_render', array($this, "onBeforeRenderElement") );
 		add_action( 'elementor/frontend/section/before_render', array($this, "onBeforeRenderElement") );
 		add_action( 'elementor/frontend/column/before_render', array($this, 'onBeforeRenderElement') );
 		add_action( 'elementor/frontend/widget/before_render', array($this, 'onBeforeRenderElement') );
 		
-    	
+		add_action( 'elementor/frontend/before_get_builder_content', array($this, 'onBuilderContentData'),10,2);
+		
+		 
     	// ------ admin related only ----------
     	
     	if(is_admin() == false)

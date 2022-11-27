@@ -530,16 +530,24 @@ class UniteCreatorLayoutsExporterElementor extends UniteCreatorLayoutsExporter{
 	
 	function a_______EXPORT_IMAGES______(){}
 	
+	
 	/**
 	 * check if it's image array or not
 	 */
 	protected function isImageArray($arr){
-		
-		if( count($arr) > 2 || empty($arr))
-			return(false);
-		
-		if(isset($arr["url"]) || isset($arr["id"]))
+				
+		if(count($arr) <= 2 && ( isset($arr["url"]) || isset($arr["id"]) ) )
 			return(true);
+			
+		if( count($arr) <= 5 && array_key_exists("url", $arr) && array_key_exists("id", $arr) )
+			return(true);
+		
+		if( count($arr) <= 5 && array_key_exists("url", $arr) && array_key_exists("alt", $arr) )
+			return(true);
+		
+		if( count($arr) <= 5 && array_key_exists("id", $arr) && array_key_exists("alt", $arr) )
+			return(true);
+		
 		
 		return(false);
 	}
@@ -588,9 +596,11 @@ class UniteCreatorLayoutsExporterElementor extends UniteCreatorLayoutsExporter{
 				
 				continue;
 			}
-						
-			$isImageItem = $this->isImageArray($item);
 			
+			//in case of array
+			
+			$isImageItem = $this->isImageArray($item);
+						
 			if($isImageItem == true){
 				
 				$arrLayout[$key] = $modifyFunc($item, $key);
@@ -646,11 +656,7 @@ class UniteCreatorLayoutsExporterElementor extends UniteCreatorLayoutsExporter{
 		$arrContent = $this->runOverLayoutImagesForExport($arrContent, array($this, "modifyLayoutImageForExport"));
 		
 		$this->addPostFeaturedImage();
-		
-		/*
-		dmp("export images"); dmp($this->arrExportImages); exit();
-		*/
-		
+				
 		$this->putLayoutImages_copyImages();
 		
 		return($arrContent);
@@ -1055,6 +1061,7 @@ class UniteCreatorLayoutsExporterElementor extends UniteCreatorLayoutsExporter{
 						
 			$arrContent = $this->modifyExportDeleteGlobals($arrContent);
 			
+			
 			$this->putLayoutFile_elementor($arrContent);
 						
 			//make zip
@@ -1176,9 +1183,9 @@ class UniteCreatorLayoutsExporterElementor extends UniteCreatorLayoutsExporter{
 		
 		 if(!empty($sectionID))
 		 	$exportName = $exportName."_".$sectionID;
-		 
+		 		 
 		$arrData = $this->exportElementorLayoutZip($content, $exportName, $isReturnData);
-				
+		
 		return($arrData);
 	}
 	 

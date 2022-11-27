@@ -191,13 +191,13 @@ class UniteCreatorEntranceAnimations{
 		$blur = 0;
 		
 		switch($blurType){
-			case "small":
+			case self::BLUR_SMALL:
 				$blur = 4;
 			break;
-			case "medium":
+			case self::BLUR_MEDIUM:
 				$blur = 10;				
 			break;
-			case "big":
+			case self::BLUR_STRONG:
 				$blur = 40;
 			break;
 			default:

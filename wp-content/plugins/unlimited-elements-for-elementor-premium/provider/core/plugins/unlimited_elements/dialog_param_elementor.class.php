@@ -876,8 +876,11 @@ class UniteCreatorDialogParamElementor extends UniteCreatorDialogParam{
 	protected function putSpecialAttribute(){
 		
 		$arrTypes = array();
-		$arrTypes["non"] = __("[Select Type]","unlimited-elements-for-elementor");
+		$arrTypes["none"] = __("[Select Type]","unlimited-elements-for-elementor");
 		$arrTypes["entrance_animation"] = __("Entrance Animation","unlimited-elements-for-elementor");
+		$arrTypes["items_image_size"] = __("Items Image Size","unlimited-elements-for-elementor");
+		$arrTypes["schema"] = __("Schema","unlimited-elements-for-elementor");
+		
 		
 		$optionsClass = "uc-special-attribute-options";
 		
@@ -902,6 +905,28 @@ class UniteCreatorDialogParamElementor extends UniteCreatorDialogParam{
  		    	<input type="text" name="entrance_animation_item_class" value="" placeholder="Example: ue-item">
 	 		    
 			</div>
+			
+			<!-- schema -->
+			
+ 		    <div class="<?php echo $optionsClass?>" data-control="schema" style="display:none">
+				
+				<div class="unite-inputs-label">
+			 		    <?php _e("Items Attribute - Title","unlimited-elements-for-elementor")?>		
+				</div>
+ 		    		 		    
+ 		    	<input type="text" name="schema_title_name" value="title" placeholder="example: title">
+				
+				<div class="vert_sap20"></div>
+				
+				<div class="unite-inputs-label">
+			 		    <?php _e("Items Attribute - Content","unlimited-elements-for-elementor")?>		
+				</div>
+ 		    	
+ 		    	<input type="text" name="schema_content_name" value="content" placeholder="example: content">
+
+	 		    
+			</div>
+			
 		<?php 
 	}
 	
@@ -951,6 +976,24 @@ class UniteCreatorDialogParamElementor extends UniteCreatorDialogParam{
 		
 		$this->addPHPFilterOptions("dropdown");
 		
+	}
+	
+	/**
+	 * 
+	 * function for override
+	 */
+	protected function putPostSelectAttribute(){
+		
+		$this->putNoDefaultValueText();
+				
+	}
+
+	/**
+	 * function for override
+	 */
+	protected function putTermSelectAttribute(){
+		
+		$this->putNoDefaultValueText();
 	}
 	
 	

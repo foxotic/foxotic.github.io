@@ -1,9 +1,26 @@
 
+
+version 1.5.41:
+
+-bug fix: fixed post select in post query
+
+
+
+version 1.5.40:
+
+-feature: added integration to woocommerce multicourancy plugins
+-feature: made some integration with translate press plugin
+-feature: added select post and select term attribute
+-bug fix: fixed dynamic loop css backgrounds with containers
+-bug fix: fixed mousewheel event in the carousel
+-bug fix: fixed some rare php error with filters
+
+
+
 version 1.5.39:
 
 -bug fix: fixed small bug with zip extract
 -update: updated black friday sale banners
-
 
 
 version 1.5.38:

@@ -10,6 +10,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		private static $db;
 		private static $objAcfIntegrate;
 		private static $cacheTermCustomFields = array();
+		private static $cacheUserCustomFields = array();
 		private static $cacheTermParents = array();
 		
 		private static $arrTermParentsCache = array();
@@ -1341,18 +1342,17 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			if(isset(self::$cacheTermCustomFields[$cacheKey]))
 				return(self::$cacheTermCustomFields[$cacheKey]);
-			
-			$prefix = null;
-			if($addPrefixes == true)
-				$prefix = "cf_";
-			
+						
 			$isAcfActive = UniteCreatorAcfIntegrate::isAcfActive();
 			
-			if($isAcfActive == false)
-				return(array());
-							
+			if($isAcfActive == false){
+				$arrMeta = self::getTermMeta($termID, $addPrefixes);
+				
+				return($arrMeta);
+			}
+			
 			$objAcf = self::getObjAcfIntegrate();
-			$arrCustomFields = $objAcf->getAcfFields($termID, "term");
+			$arrCustomFields = $objAcf->getAcfFields($termID, "term",$addPrefixes);
 			
 			self::$cacheTermCustomFields[$cacheKey] = $arrCustomFields;
 			
@@ -1481,7 +1481,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		/**
 		 * get terms meta
 		 */
-		public static function getTermMeta($termID){
+		public static function getTermMeta($termID, $addPrefixes = false){
 			
 			$arrMeta = get_term_meta($termID);
 			
@@ -1495,9 +1495,12 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 				if(is_array($item) && count($item) == 1)
 					$item = $item[0];
 				
+				if($addPrefixes == true)
+					$key = "cf_".$key;
+				
 				$arrMetaOutput[$key] = $item;
 			}
-			
+						
 			return($arrMetaOutput);
 		}
 		
@@ -1603,6 +1606,35 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			return($arrKeysOutput);
 		}
 		
+		
+		/**
+		 * get term custom field
+		 */
+		public static function getUserCustomFields($userID, $addPrefixes = true){
+			
+			$cacheKey = $termID;
+			if($addPrefixes == true)
+				$cacheKey = $userID."_prefixes";
+			
+			if(isset(self::$cacheUserCustomFields[$cacheKey]))
+				return(self::$cacheUserCustomFields[$cacheKey]);
+			
+			$isAcfActive = UniteCreatorAcfIntegrate::isAcfActive();
+			
+			if($isAcfActive == false){
+				
+				$arrMeta = self::getUserMeta($userID,array(),$addPrefixes);
+				
+				return($arrMeta);
+			}
+			
+			$objAcf = self::getObjAcfIntegrate();
+			$arrCustomFields = $objAcf->getAcfFields($userID, "user",$addPrefixes);
+			
+			self::$cacheUserCustomFields[$cacheKey] = $arrCustomFields;
+			
+			return($arrCustomFields);
+		}
 		
 		
 		public static function a__________POST_GETTERS__________(){}
@@ -2853,7 +2885,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		/**
 		 * get user meta
 		 */
-		public static function getUserMeta($userID, $arrMetaKeys = null){
+		public static function getUserMeta($userID, $arrMetaKeys = null, $addPrefixed = false){
 			
 			$arrMeta = get_user_meta($userID,'',true);
 			
@@ -2885,6 +2917,9 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 					if(!empty($arrOpened))
 						$metaValue = $arrOpened;
 				}
+				
+				if($addPrefixed == true)
+					$key = "cf_".$key;
 				
 				$arrOutput[$key] = $metaValue;
 			}
@@ -2922,6 +2957,9 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 * get user data by object
 		 */
 		public static function getUserData($objUser, $getMeta = false, $getAvatar = false, $arrMetaKeys = null){
+			
+			if(is_numeric($objUser))
+				$objUser = get_user_by("id",$objUser);
 			
 			$userID = $objUser->ID;
 						

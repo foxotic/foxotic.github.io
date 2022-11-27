@@ -66,6 +66,8 @@ class UniteCreatorDialogParamWork{
 	const PARAM_CSS_FILTERS = "uc_css_filters";
 	const PARAM_HOVER_ANIMATIONS = "uc_hover_animations";
 	const PARAM_SPECIAL = "uc_special";
+	const PARAM_POST_SELECT = "uc_post_select";
+	const PARAM_TERM_SELECT = "uc_term_select";
 	
 	const PARAM_VAR_GET = "uc_var_get";
 	const PARAM_VAR_FILTER = "uc_var_filter";
@@ -223,6 +225,9 @@ class UniteCreatorDialogParamWork{
 		$this->addParam(self::PARAM_BORDER_DIMENTIONS, esc_html__("Border Radius", "unlimited-elements-for-elementor"));
 		$this->addParam(self::PARAM_CSS_FILTERS, esc_html__("Css Filters", "unlimited-elements-for-elementor"));
 		$this->addParam(self::PARAM_HOVER_ANIMATIONS, esc_html__("Hover Animations", "unlimited-elements-for-elementor"));
+		
+		$this->addParam(self::PARAM_POST_SELECT, esc_html__("Post Select", "unlimited-elements-for-elementor"));
+		$this->addParam(self::PARAM_TERM_SELECT, esc_html__("Term Select", "unlimited-elements-for-elementor"));
 		
 		$this->addParam(self::PARAM_SPECIAL, esc_html__("Special Attribute", "unlimited-elements-for-elementor"));
 		
@@ -1091,6 +1096,27 @@ class UniteCreatorDialogParamWork{
 		exit();
 		
 	}
+		
+	/**
+	 * 
+	 * function for override
+	 */
+	protected function putPostSelectAttribute(){
+		
+		dmp("putPostSelectAttribute: function for override");
+		exit();
+		
+	}
+
+	/**
+	 * function for override
+	 */
+	protected function putTermSelectAttribute(){
+		
+		dmp("putTermSelectAttribute: function for override");
+		exit();
+		
+	}
 	
 	
 	private function a___________DROPDOWN_PARAM________(){}
@@ -1569,6 +1595,12 @@ class UniteCreatorDialogParamWork{
 			break;
 			case self::PARAM_SPECIAL:
 				$this->putSpecialAttribute();
+			break;
+			case self::PARAM_POST_SELECT:
+				$this->putPostSelectAttribute();
+			break;
+			case self::PARAM_TERM_SELECT:
+				$this->putTermSelectAttribute();
 			break;
 			case self::PARAM_VAR_GET:
 				$this->putGetParamFields();

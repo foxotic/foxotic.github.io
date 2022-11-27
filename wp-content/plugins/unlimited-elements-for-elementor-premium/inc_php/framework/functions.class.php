@@ -725,6 +725,43 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			return($arrIDs);
 		}
 		
+		/**
+		 * 
+		 * convert array to csv string
+		 */
+		public static function arrayToCsv($data, $delimiter = ',', $enclosure = '"', $escape_char = "\\"){
+			
+			if(is_array($data) == false)
+				return("");
+			
+			//get the headers
+			if(empty($data))
+				return("");
+			
+			$csv = "";
+			
+		    $f = fopen('php://memory', 'r+');
+		    
+		    $arrKeys = null;
+		    
+		    foreach ($data as $item) {
+		    	
+		    	//put keys
+		    	if(empty($arrKeys)){
+		    		
+		    		$arrKeys = array_keys($item);
+			 				    		
+		    		fputcsv($f, $arrKeys, $delimiter, $enclosure, $escape_char);
+		    	}
+		    	
+		        fputcsv($f, $item, $delimiter, $enclosure, $escape_char);
+		    }
+		    rewind($f);
+		    
+		    $csv = stream_get_contents($f);
+		    
+		    return $csv;
+		}
 		
 		
 		public static function z_____________STRINGS_____________(){}
@@ -1053,7 +1090,92 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		    	return false;
 			
 			return true;			
-		}		
+		}	
+
+		
+		/**
+		 * maybe json decode
+		 */
+		public static function maybeJsonDecode($str){
+			
+			if(empty($str))
+				return($str);
+			
+			if(is_string($str) == false)
+				return($str);
+			
+			//try to json decode
+			$arrJson = self::jsonDecode($str);
+			if(!empty($arrJson) && is_array($arrJson))
+				return($arrJson);
+			
+			return($str);
+		}
+		
+		/**
+		 * maybe json decode
+		 */
+		public static function maybeCsvDecode($str){
+			
+			if(empty($str))
+				return($str);
+			
+			if(is_string($str) == false)
+				return($str);
+			
+			//try to csv decode
+
+			$arrLines = explode("\n", $str);
+			
+			if(count($arrLines) < 2)
+				return($str);
+				
+			$arrKeys = array();
+
+			$arrItems = array();
+			
+			foreach($arrLines as $line){
+				
+				if(empty($line))
+					continue;
+				
+				$arrLine = str_getcsv($line);
+				
+				if(empty($arrLine))
+					continue;
+				
+				//get the keys
+				if(empty($arrKeys)){
+					$arrKeys = $arrLine;
+					continue;
+				}
+				
+				//get the item
+				
+				if(count($arrLine) != count($arrKeys))
+					continue;
+				
+				//create the item
+				
+				$item = array();
+				
+				foreach($arrKeys as $index=>$key){
+					
+					$value = $arrLine[$index];
+					
+					$item[$key] = $value;
+				}
+				
+				
+				$arrItems[] = $item;
+			}
+				
+			if(empty($arrItems))
+				return($str);
+			
+			
+			return($arrItems);
+		}
 		
 		
 		/**
@@ -1739,14 +1861,29 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 		 */
 		public static function validateIDsList($val, $fieldName=""){
 			
+			$isValid = self::isValidIDsList($val);
+			
+			if($isValid == false)
+				self::throwError("Field <b>$fieldName</b> allow only numbers and comas.");
+			
+		}
+		
+		
+		/**
+		 * validate id's list, allowed only numbers and commas
+		 * @param $val
+		 */
+		public static function isValidIDsList($val, $fieldName=""){
+			
 			if(empty($val))
 				return(true);
 			
 			$match = preg_match('/^[0-9,]+$/', $val);
 			
 			if($match == 0)
-				self::throwError("Field <b>$fieldName</b> allow only numbers and comas.");
+				return(false);
 				
+			return(true);
 		}
 		
 		

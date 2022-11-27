@@ -322,6 +322,8 @@ class UniteCreatorAddonViewChildParams{
 		$key = "getUserData()";
 		$text = "
 {# Use this function this way:  getUserData(username, getMeta=true/false, getAvatar=true/false) #}
+{# for current logged in user use username: 'loggedin_user' #}
+
 \n
 {% set userData = getUserData('admin',true, true) %}
 {{printVar(userData)}}
@@ -412,9 +414,9 @@ class UniteCreatorAddonViewChildParams{
 
 		$key = "get_current_user()";
 		$text = "
-{# get the current logged in user. If not logged in then return null #}
+{# get the current logged in user. If not logged in then return null. argument 2 - get also current user meta #}
 
-{% set user = ucfunc(\"get_current_user\") %}
+{% set user = ucfunc(\"get_current_user\", true) %}
 
 {% if user is empty %}
 		no user loggedin
@@ -429,16 +431,48 @@ class UniteCreatorAddonViewChildParams{
 		
 		$arrParams[] = $this->createChildParam_code($key, $text);
 		
+		//----- get term image ------
+		
+		$key = "get_term_image()";
+		$text = "
+{# get the image fields out of the term.  ucfunc(\"get_term_image\",id,metakey) #}
+{# if id is null - get from current term #}
+
+{% set image = ucfunc(\"get_term_image\",10,\"attachment_id\") %}
+
+{% if image is not empty %}
+	{{printVar(image)}}
+
+{% else %}
+
+	no image found
+
+{% endif %}
+";
+		
+		$arrParams[] = $this->createChildParam_code($key, $text);
+		
 
 		//----- hide id's in css ------
 
-		$key = "put_hide_ids_css(arg)";
+		$key = "put_hide_ids_css()";
 		$text = "
 {# this used from item css tab. argument it's the id's attribute #}
 
 {{ ucfunc(\"put_hide_ids_css\", arg) }}
 ";
 		
+		$arrParams[] = $this->createChildParam_code($key, $text);
+
+		//----- put items schema ------
+
+		$key = "put_schema_items_json()";
+		$text = "
+{# the faq schema used in content items widgets, good for SEO #}
+
+{{ ucfunc(\"put_schema_items_json\") }}
+";
+
 		$arrParams[] = $this->createChildParam_code($key, $text);
 		
 		
@@ -447,6 +481,7 @@ class UniteCreatorAddonViewChildParams{
 		
 		return($arrParams);
 	}
+	
 	
 
 	/**
@@ -1063,6 +1098,25 @@ console.log(arrItems);
 	    return($arrParam);
 	}
 	
+	/**
+	 * create add child products param
+	 */
+	private function createWooPostParam_putAttributes(){
+		
+		$strCode = "";
+		
+		$strCode .= "{%set attributes = ucfunc(\"get_product_attributes\",[param_prefix].id) %}\n\n";
+		
+		$strCode .= "{% for attribute in attributes %}\n";
+		$strCode .= "  <p>{{attribute}}</p>\n";
+		$strCode .= "{% endfor %}\n";
+		
+	    $arrParam = $this->createChildParam("putWooAttributes", null, array("raw_insert_text"=>$strCode));
+		
+	    return($arrParam);
+	}
+	
+	
 	
 	/**
 	 * check and add woo post params
@@ -1081,6 +1135,7 @@ console.log(arrItems);
 		
 		$arrParams[] = $this->createWooPostParam_getChildProducts();
 		$arrParams[] = $this->createWooPostParam_putVariations();
+		$arrParams[] = $this->createWooPostParam_putAttributes();
 		$arrParams[] = $this->createWooPostParam_putProductGallery();
 		$arrParams[] = $this->createWooPostParam_getEndpoints();
 		

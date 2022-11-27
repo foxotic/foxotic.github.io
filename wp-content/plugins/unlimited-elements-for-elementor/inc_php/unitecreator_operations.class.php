@@ -462,77 +462,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			return($response);
 		}
 		
-		/**
-		 * put posts meta fields debug
-		 */
-		public function putPostsCustomFieldsDebug($arrPosts){
-			
-			if(empty($arrPosts))
-				return(false);
-			
-			dmp("Show the posts meta fields. Please turn off this option before release.");
-			
-			foreach($arrPosts as $post){
-				
-				$postID = $post->ID;
-				
-				$this->putPostCustomFieldsDebug($postID);
-			}
-			
-		}
 		
-		/**
-		 * put debug of post custom fields
-		 */
-		public function putPostCustomFieldsDebug($postID, $showCustomFields = false){
-			
-			if($postID == "current"){
-				$post = get_post();
-				$postID = $post->ID;
-			}
-			else
-				$post = get_post($postID);
-			
-			if(empty($post))
-				return(false);
-				
-			$postTitle = $post->post_title;
-			
-			if($showCustomFields == false)
-				$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
-			else{
-				$arrCustomFields = UniteFunctionsWPUC::getPostCustomFields($postID, false);
-				
-				if(empty($arrCustomFields))
-					$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
-			}
-			
-			/*
-			if(empty($arrCustomFields)){
-				
-				dmp("No Meta Fields Found");
-				
-				dmp("fields:");
-				dmp($arrCustomFields);
-				
-				dmp("post: ");
-				dmp($post);
-				
-				return(false);
-			}
-			*/
-			
-			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
-			
-			$fieldsTitle = "Meta";
-			if($showCustomFields == true)
-				$fieldsTitle = "Custom";
-			
-			echo "<br>{$fieldsTitle} fields for post: <b>$postTitle </b>, post id: $postID <br>";
-			
-			dmp($htmlFields);
-			
-		}
 		
 		/**
 		 * get the cats
@@ -632,6 +562,253 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			} //switch
 			
 			return($arrItems);
+		}
+		
+		private function a____________DEBUG____________(){}
+		
+		/**
+		 * modify field for debug
+		 */
+		public function modifyDebugField($field){
+			
+			if(is_string($field) == false)
+				return($field);
+			
+			$maxChars = 200;
+				
+			$field = trim($field);
+			
+			$numchars = strlen($field);
+						
+			$field = htmlspecialchars($field);
+			
+			if(strlen($field) < $maxChars)
+				return($field);
+			
+			//remove spaces
+			$field = str_replace(" ", "", $field);
+			$field = str_replace("\n", "", $field);
+			
+			if(strlen($field) > $maxChars)
+				$field = substr($field, 0,$maxChars)."... ($numchars chars)";
+			
+			return($field);
+		}
+		
+		
+		/**
+		 * put debug of post custom fields
+		 */
+		public function putPostCustomFieldsDebug($postID, $showCustomFields = false){
+			
+			if($postID == "current"){
+				$post = get_post();
+				$postID = $post->ID;
+			}
+			else
+				$post = get_post($postID);
+			
+			if(empty($post))
+				return(false);
+				
+			$postTitle = $post->post_title;
+			
+			if($showCustomFields == false)
+				$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
+			else{
+				$arrCustomFields = UniteFunctionsWPUC::getPostCustomFields($postID, false);
+				
+				if(empty($arrCustomFields))
+					$arrCustomFields = UniteFunctionsWPUC::getPostMeta($postID);
+			}
+			
+			if(empty($arrCustomFields))
+				$arrCustomFields = array();
+			
+			foreach($arrCustomFields as $key=>$field){
+				$arrCustomFields[$key] = $this->modifyDebugField($field);
+			}
+				
+			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
+			
+			$fieldsTitle = "Meta";
+			if($showCustomFields == true)
+				$fieldsTitle = "Custom";
+			
+			echo "<br>{$fieldsTitle} fields for post: <b>$postTitle </b>, post id: $postID <br>";
+			
+			dmp($htmlFields);
+			
+		}
+		
+		
+		/**
+		 * put term custom fields - for debug
+		 */
+		public function putTermCustomFieldsDebug($term){
+			
+			
+			if(is_array($term)){
+				
+				$termID = UniteFunctionsUC::getVal($term, "id");
+				$name = UniteFunctionsUC::getVal($term, "name");
+				
+			}else{
+				
+				$termID = $term->term_id;
+				$name = $term->name;
+			}
+			
+			$arrCustomFields = UniteFunctionsWPUC::getTermCustomFields($termID,false);
+
+			foreach($arrCustomFields as $key=>$field){
+				$arrCustomFields[$key] = $this->modifyDebugField($field);
+			}
+				
+			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
+			
+			$fieldsTitle = "Meta";
+			
+			echo "<br>{$fieldsTitle} fields for term: <b>$name </b>, term id: $termID <br>";
+			
+			dmp($htmlFields);
+			
+		}
+		
+		/**
+		 * terms custom fields debug
+		 */
+		public function putTermsCustomFieldsDebug($arrTerms){
+			
+			if(empty($arrTerms))
+				return(false);
+
+			dmp("Show the terms meta fields. Please turn off this option before release.");
+			
+			foreach($arrTerms as $term){
+				
+				if(is_array($term))
+					$termID = UniteFunctionsUC::getVal($term, "id");
+				else
+					$termID = $term->term_id;
+								
+				$this->putTermCustomFieldsDebug($term);
+				
+			}
+			
+		}
+		
+		
+		/**
+		 * put posts meta fields debug
+		 */
+		public function putPostsCustomFieldsDebug($arrPosts){
+			
+			if(empty($arrPosts))
+				return(false);
+			
+			dmp("Show the posts meta fields. Please turn off this option before release.");
+			
+			foreach($arrPosts as $post){
+				
+				$postID = $post->ID;
+				
+				$this->putPostCustomFieldsDebug($postID);
+			}
+			
+		}
+		
+		
+		/**
+		 * put custom fields array to debug
+		 */
+		public function putCustomFieldsArrayDebug($arrCustomFields, $title = null){
+			
+			if(!empty($title))
+				dmp("$title custom fields debug. turn off before release");
+			
+			foreach($arrCustomFields as $key=>$field){
+				$arrCustomFields[$key] = $this->modifyDebugField($field);
+			}
+				
+			$htmlFields = HelperHtmlUC::getHtmlArrayTable($arrCustomFields, "No Meta Fields Found");
+			
+			dmp($htmlFields);
+		}
+		
+		private function a____________URL_CONTENTS____________(){}
+		
+		
+		/**
+		 * get url contents from file or url with cache
+		 */
+		public function getUrlContents($url, $showDebug = false){
+
+			if($showDebug == true)
+				dmp("get contents from url: $url");
+			
+			$urlRelative = HelperUC::URLtoRelative($url);
+			
+			$isFile = $urlRelative != $url;
+			
+			if($isFile == true){
+				
+				$pathFile = HelperUC::urlToPath($url);
+								
+				if(empty($pathFile)){
+					
+					if($showDebug == true){
+						$pathFile = GlobalsUC::$path_base.$urlRelative;
+						
+						dmp("file not exists:  $pathFile");
+						exit();
+					}
+					
+					return(null);
+				}
+				
+				if($showDebug == true)
+					dmp("file detected: $pathFile");
+				
+				$content = file_get_contents($pathFile);
+				
+				return($content);
+			}
+						
+			//add to cache
+			
+			$cacheKey = "uc_geturl_".$url;
+			$cacheKey = HelperInstaUC::convertTitleToHandle($cacheKey);
+			
+			$content = UniteProviderFunctionsUC::getTransient($cacheKey);
+			
+			if(!empty($content)){
+				
+				if($showDebug == true)
+					dmp("get contents from cache (3 min)");
+				
+				return($content);
+			}
+			
+			try{
+				
+				$content = UniteFunctionsUC::getUrlContents($url, null, false);
+				
+				if($showDebug == true)
+					dmp("get contents from url itself");
+			
+			}catch(Exception $e){
+				
+				if($showDebug == true)
+					dmp("failed to get url contents: $url");
+				
+				return(null);
+			}
+						
+			UniteProviderFunctionsUC::setTransient($cacheKey, $content, 180);	//3 min
+			
+			
+			return($content);
 		}
 		
 		private function a____________DATE____________(){}

@@ -768,7 +768,7 @@ class UniteCreatorElementorWidget extends Widget_Base {
      */
     protected function getControlArrayUC($param, $forItems = false){
 
-    	
+		    	
     	$type = UniteFunctionsUC::getVal($param, "type");
     	$title = UniteFunctionsUC::getVal($param, "title");
     	$name = UniteFunctionsUC::getVal($param, "name");
@@ -959,7 +959,14 @@ class UniteCreatorElementorWidget extends Widget_Base {
     			$controlType = Controls_Manager::TEXT;
     			 
     		break;
-    		
+    		case UniteCreatorDialogParam::PARAM_POST_SELECT:
+    			
+    			$controlType = "uc_select_special";
+    			
+    		break;
+    		case UniteCreatorDialogParam::PARAM_TERM_SELECT:
+    			$controlType = "uc_select_special";
+    		break;
     		default:
     			
     			$addonTitle = $this->objAddon->getTitle();
@@ -988,30 +995,6 @@ class UniteCreatorElementorWidget extends Widget_Base {
     	
     	//add options
     	switch($type){
-    		case UniteCreatorDialogParam::PARAM_SPECIAL:
-    			
-    			/*
-    			$attributeType = UniteFunctionsUC::getVal($param, "attribute_type");
-    			
-    			switch($attributeType){
-    				case "refresh":
-
-    					$strNames = UniteFunctionsUC::getVal($param, "refresh_attribute_names");
-    					
-    					$arrControl["type"] = Controls_Manager::RAW_HTML;
-    					$arrControl["label"] = "";
-    					$arrControl["raw"] = "<div class='uc-refresh-widget-wrapper'>
-    						<input type='text' class='uc-refresh-widget-input' data-setting='{$name}' value='' data-attribute-names='{$strNames}'>
-    						names: $strNames
-    					</div>";
-    					
-    				break;
-    				default:
-    				break;
-    			}
-    			*/
-    			
-    		break;
     		case UniteCreatorDialogParam::PARAM_HEADING:
     			
     			$arrControl["label"] = $defaultValue;
@@ -1032,8 +1015,34 @@ class UniteCreatorElementorWidget extends Widget_Base {
     			}
     			
     		break;
+    		case UniteCreatorDialogParam::PARAM_POST_SELECT:
+    			
+    			$placeholder = "All--Posts";
+    			
+				$loaderText = __("Loading Data...", "unlimited-elements-for-elementor");
+				$loaderText = UniteFunctionsUC::encodeContent($loaderText);
+    			
+    			$addParams = "class=unite-setting-special-select data-settingtype=post_ids data-loadertext={$loaderText} data-placeholdertext={$placeholder} data-issingle=true";
+    			
+				$arrControl["addparams"] = $addParams;
+				$arrControl["label_block"] = true;
+    			
+    		break;
+    		case UniteCreatorDialogParam::PARAM_TERM_SELECT:
+    			
+    			$placeholder = "All--Terms";
+				
+    			$loaderText = __("Loading Data...", "unlimited-elements-for-elementor");
+				$loaderText = UniteFunctionsUC::encodeContent($loaderText);
+    			
+    			$addParams = "class=unite-setting-special-select data-settingtype=post_ids data-loadertext={$loaderText} data-placeholdertext={$placeholder} data-issingle=true data-datatype=terms";
+    			
+				$arrControl["addparams"] = $addParams;
+				$arrControl["label_block"] = true;
+    			
+    		break;
     		case "uc_select_special":
-    			    			
+    			   
     			$addParams = UniteFunctionsUC::getVal($param, "addparams");
     			$classAdd = UniteFunctionsUC::getVal($param, "classAdd");
 				

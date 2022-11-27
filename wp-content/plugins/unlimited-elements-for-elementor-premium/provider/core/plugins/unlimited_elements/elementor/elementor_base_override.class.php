@@ -1,5 +1,5 @@
 <?php
-
+ 
 use Elementor\Core\Base\Document;
 use Elementor\DB;
 use Elementor\Core\Settings\Manager as SettingsManager;

@@ -12,6 +12,7 @@ defined ('UNLIMITED_ELEMENTS_INC') or die ('restricted aceess');
 
 class UniteCreatorElementorPagination{
 	
+	const SHOW_DEBUG = false;		//please turn it off
 	
 	/**
 	 * add content controls
@@ -373,7 +374,13 @@ class UniteCreatorElementorPagination{
 		
 		//output demo pagination
 		$isEditMode = UniteCreatorElementorIntegrate::$isEditMode;
+				
 		if($isEditMode == true){
+			
+			if(self::SHOW_DEBUG == true){
+				dmp("edit mode!!!");
+			}
+			
 			$options["total"] = 5;
 			$options["current"] = 2;
 			return($options);
@@ -389,7 +396,6 @@ class UniteCreatorElementorPagination{
 		global $wp_rewrite;
 		$isUsingPermalinks = $wp_rewrite->using_permalinks();
 		
-				
 		if( $isUsingPermalinks == true){		//with permalinks - add /2
 			
 			$permalink = get_permalink();
@@ -419,10 +425,17 @@ class UniteCreatorElementorPagination{
 		
 		//set current page
 		$currentPage = 1;
-		if(!empty(GlobalsProviderUC::$lastPostQuery_page))
+		if(!empty(GlobalsProviderUC::$lastPostQuery_page)){
 			$currentPage = GlobalsProviderUC::$lastPostQuery_page;
+			
+			if(self::SHOW_DEBUG == true){
+				dmp("current: $currentPage from the lastPostQuery_page var");
+			}
+			
+		}
 		else{
 			$currentPage = get_query_var("paged");
+			dmp("current: $currentPage from the get_query_var");
 		}
 				
 		if(empty($currentPage))
@@ -507,7 +520,6 @@ class UniteCreatorElementorPagination{
 	 */
 	public function putPaginationWidgetHtml($args){
 		
-		
 		$putPrevNext = UniteFunctionsUC::getVal($args, "put_prev_next_buttons");
 		$putPrevNext = UniteFunctionsUC::strToBool($putPrevNext);
 		
@@ -531,6 +543,9 @@ class UniteCreatorElementorPagination{
 		
 		$isDebug = UniteFunctionsUC::getVal($args, "debug_pagination_options");
 		$isDebug = UniteFunctionsUC::strToBool($isDebug);
+		
+		if(self::SHOW_DEBUG == true)
+			$isDebug = true;
 		
 		$forceFormat = UniteFunctionsUC::getVal($args, "force_format");
 		if($forceFormat == "none")
@@ -582,10 +597,19 @@ class UniteCreatorElementorPagination{
 				dmp("Force Format: ".$forceFormat);
 		}
 		
-			
+		//on ajax - always take the last grid response - single
+		
+		$objFilters = new UniteCreatorFiltersProcess();
+		$isAjax = $objFilters->isFrontAjaxRequest();
+		
+		if($isAjax == true)
+			$isArchivePage = false;
+		
+		
 		//fix the archive
 		
 		if($isArchivePage == true && !empty(GlobalsProviderUC::$lastPostQuery_paginationType) && GlobalsProviderUC::$lastPostQuery_paginationType != GlobalsProviderUC::QUERY_TYPE_CURRENT){
+			
 			$isArchivePage = false;
 			
 			if($isDebug == true){

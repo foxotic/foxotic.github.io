@@ -432,7 +432,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 				
 				if($isArray == true){
 					$html .= "$key:";
-					$html .= "<pre>";
+					$html .= "<pre style='padding-left:60px;font-size:12px;'>";
 					$html .= print_r($value, true);
 					$html .= "</pre>";
 				}
@@ -441,7 +441,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 					$firstLetter = $key[0];		//for post meta
 					
 					if($firstLetter == "_")
-						$html .= "$key: $value \n";
+						$html .= "$key: <span style='color:gray'>$value</span> \n";
 					else
 						$html .= "<b>$key</b>: $value \n";
 					

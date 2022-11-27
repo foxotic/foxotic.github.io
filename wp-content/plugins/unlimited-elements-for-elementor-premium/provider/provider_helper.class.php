@@ -406,6 +406,7 @@ class HelperProviderUC{
     	$showPHPError = HelperProviderCoreUC_EL::getGeneralSetting("show_php_error");
 		$showPHPError = UniteFunctionsUC::strToBool($showPHPError);
 		
+			
 		if($showPHPError == true)
 			add_filter("wp_php_error_message", array("HelperProviderUC","onPHPErrorMessage"),100,2);
 		

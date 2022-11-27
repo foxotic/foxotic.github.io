@@ -23,7 +23,9 @@ class UniteCreatorAcfIntegrate{
 	
 	const SHOW_DEBUG_FIELDS = false;
 	const DEBUG_UNKNOWN_TYPE = false;
-		
+
+	private $outputImageSize = null;
+	
 	
 		/**
 		 * return if acf plugin activated
@@ -62,7 +64,19 @@ class UniteCreatorAcfIntegrate{
 		 * get image field data
 		 */
 		private function getImageFieldData($field, $key=null){
-						
+			
+			
+			//set the output image size
+			
+			$outputImageSize = null;
+			
+			if(!empty($this->outputImageSize))
+				$outputImageSize = $this->outputImageSize;
+			
+				
+			$imageID = UniteFunctionsUC::getVal($field, "id");
+
+			
 			$title = $this->getImageFieldTitle($field);
 			
 			$caption = UniteFunctionsUC::getVal($field, "caption");
@@ -77,9 +91,22 @@ class UniteCreatorAcfIntegrate{
 			
 			$urlImage = UniteFunctionsUC::getVal($field, "url");
 			$arrSizes = UniteFunctionsUC::getVal($field, "sizes");
-
+			
 			$width = UniteFunctionsUC::getVal($field, "width");
 			$height = UniteFunctionsUC::getVal($field, "height");
+			
+			if(!empty($outputImageSize)){
+				
+				$urlImageSize = UniteFunctionsUC::getVal($arrSizes, $outputImageSize);
+				
+				if(!empty($urlImageSize)){
+					
+					$urlImage = $urlImageSize;
+					$width = UniteFunctionsUC::getVal($arrSizes, $outputImageSize."-width");
+					$height = UniteFunctionsUC::getVal($arrSizes, $outputImageSize."-height");
+				}
+				
+			}
 			
 			
 			$arrValues = array();
@@ -107,7 +134,10 @@ class UniteCreatorAcfIntegrate{
 
 			$arrValues[$keyprefix."thumb_width"] = $thumbMediumWidth;
 			$arrValues[$keyprefix."thumb_height"] = $thumbMediumHeight;
-						
+			
+			if(empty($arrSizes))
+				$arrSizes = array();
+			
 			foreach($arrSizes as $size => $value){
 				
 				if( $size == "medium")
@@ -126,11 +156,36 @@ class UniteCreatorAcfIntegrate{
 				$arrValues[$thumbName."_width"] = $width;
 				$arrValues[$thumbName."_height"] = $height;
 			}
-						
+
+			
+			//set attributes
+			
+			$attributes = "";
+			
+			$attributes .= " src=\"{$urlImage}\"";
+			
+			if(!empty($alt)){
+				
+				$alt = esc_attr($alt);
+				$attributes .= " alt=\"{$alt}\"";
+			}
+			
+			$data[$keyprefix."_attributes_nosize"] = $attributes;
+			
+			if(!empty($width)){
+				$attributes .= " width=\"$width\"";
+				$attributes .= " height=\"$height\"";
+			}
+			
+			
+			//set other data
 					
+			$arrValues[$keyprefix."attributes"] = $attributes;
 			$arrValues[$keyprefix."title"] = $title;
 			$arrValues[$keyprefix."description"] = $description;
 			$arrValues[$keyprefix."alt"] = $alt;
+			$arrValues[$keyprefix."imageid"] = $imageID;
+			
 			
 			return($arrValues);
 		}
@@ -603,15 +658,18 @@ class UniteCreatorAcfIntegrate{
 		/**
 		 * get acf post fields
 		 */
-		public function getAcfFields($postID, $objName = "post", $addPrefix = true){
+		public function getAcfFields($postID, $objName = "post", $addPrefix = true, $imageSize = null){
+			
+			if(!empty($imageSize))
+				$this->outputImageSize = $imageSize;
 			
 			switch($objName){
 				case "post":
 					
 					$arrData = get_fields($postID);
-					
+										
 					$arrData = $this->modifyFieldsData($arrData);
-					
+										
 				break;
 				case "term":
 					
@@ -620,8 +678,15 @@ class UniteCreatorAcfIntegrate{
 					$arrData = get_fields($termID);
 					
 				break;
+				case "user":
+					
+					$userID = "user_".$postID;
+					
+					$arrData = get_fields($userID);
+										
+				break;
 				default:
-					UniteFunctionsUC::throwError("get acf fields function works only for post and term right now");
+					UniteFunctionsUC::throwError("get acf fields function works only for post and term and users right now");
 				break;
 			}
 			
@@ -642,6 +707,9 @@ class UniteCreatorAcfIntegrate{
 				$arrDataOutput = $this->addAcfValues($arrDataOutput, $key, $value);
 			}
 			
+			//clear image size
+			
+			$this->outputImageSize = null;
 			
 			return($arrDataOutput);
 		}

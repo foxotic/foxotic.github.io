@@ -622,6 +622,7 @@ defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 			
 			$urlRelative = self::URLtoRelative($url);
 			$path = GlobalsUC::$path_base.$urlRelative;
+			
 			if(file_exists($path) == false)
 				return(null);
 			

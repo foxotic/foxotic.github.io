@@ -664,8 +664,6 @@ class HelperProviderCoreUC_EL{
 			"doc_to_change"=>$documentToChange
 		);
 		
-		
-		
 		if($listingType == "jet")
 			$htmlTemplate = self::getJetTemplateListingItem($templateID, $post);
 		else
@@ -678,7 +676,7 @@ class HelperProviderCoreUC_EL{
 		$dest = "{$source} uc-post-$postID";
 		
 		$htmlTemplate = str_replace($source, $dest, $htmlTemplate);
-				
+		
 		echo $htmlTemplate;
 		
 		GlobalsUnlimitedElements::$renderingDynamicData = null;
@@ -718,7 +716,7 @@ class HelperProviderCoreUC_EL{
 					
 		$elementID = $element->get_ID();
   		$dynamicSettings = $element->get_settings( '__dynamic__' );
-		  		
+		
   		if(empty($dynamicSettings))
   			return(false);
   		  			
@@ -801,7 +799,7 @@ class HelperProviderCoreUC_EL{
   		$strOutput = "<style type='text/css'>\n";
   		$strOutput .= $strStyle;
   		$strOutput .= "</style>";
-
+		
   		echo $strOutput;		
 	}
 	

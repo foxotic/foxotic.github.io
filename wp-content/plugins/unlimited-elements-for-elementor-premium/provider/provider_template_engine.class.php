@@ -86,7 +86,7 @@ class UniteCreatorTemplateEngine extends UniteCreatorTemplateEngineWork{
 	/**
 	 * get post terms
 	 */
-	public function getPostTerms($postID, $taxonomy, $addCustomFields = false, $type = ""){
+	public function getPostTerms($postID, $taxonomy, $addCustomFields = false, $type = "", $maxTerms = null){
 		
 		$post = get_post($postID);
 		
@@ -103,6 +103,11 @@ class UniteCreatorTemplateEngine extends UniteCreatorTemplateEngineWork{
 		if(empty($arrTerms))
 			return(array());
 		
+		if(!empty($maxTerms) && count($arrTerms) > $maxTerms){
+			
+			$arrTerms = array_slice($arrTerms, 0, $maxTerms, true);
+		}
+			
 		$arrTermsOutput = $this->objParamsProcessor->modifyArrTermsForOutput($arrTerms, $addCustomFields);
 		
 		return($arrTermsOutput);

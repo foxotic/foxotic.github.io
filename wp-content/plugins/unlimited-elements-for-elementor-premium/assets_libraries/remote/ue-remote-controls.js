@@ -1140,11 +1140,10 @@ function UERemoteWidgets(){
 		is_debug: false,
 		syncid:null,
 		options_api:null,
-		debug_connect:false,
 		show_connection_debug:false,
 		debug_show_ids:false,
 		debug_show_widget: "",
-		trace_debug:false,
+		trace_debug:false,	//debug
 		show_trace_when_debug_on: false
 	};
 	
@@ -1438,7 +1437,7 @@ function UERemoteWidgets(){
 			g_objParent = jQuery(g_objParent[0]);
 		}
 		
-		if(g_vars.debug_connect == true){
+		if(g_vars.trace_debug == true){
 			
 			var parentID = g_objParent.attr("id");
 			var widgetID = g_objWidget.attr("id");
@@ -1457,15 +1456,23 @@ function UERemoteWidgets(){
 	 * init api variable
 	 */
 	function initAPI(){
-			
+		
+		
 		//set type and related objects
 		if(!g_api){
 			
 			var parentType = getParentType();
+			
 						
 			if(!parentType){
 				trace(g_objParent);
 				throw new Error("No parent type found");
+			}
+
+			if(g_vars.trace_debug == true){
+				
+				trace("init api: " + parentType);
+				trace(g_objParent);
 			}
 			
 			//init the api
@@ -1502,8 +1509,16 @@ function UERemoteWidgets(){
 				
 		if(optionsFromData)
 			g_vars.options_api = optionsFromData;
-				
+		
+		if(g_vars.trace_debug == true){
+			trace(g_vars.options_api);
+		}
+		
 		var isInited = g_api.init(g_objParent, g_vars.options_api, isEditor);
+		
+		if(g_vars.trace_debug == true){
+			trace("inited: " + isInited);
+		}
 		
 		return(isInited);
 	}
@@ -1545,8 +1560,14 @@ function UERemoteWidgets(){
 		
 		if(g_vars.is_inited == false){
 			
+			if(g_vars.trace_debug == true){
+				
+				trace(g_objParent);
+				trace("set object ready event");	//onWidgetInit
+			}
+			
 			g_objParent.on("uc-object-ready", func);
-						
+			
 		}
 	}
 	
@@ -1556,6 +1577,10 @@ function UERemoteWidgets(){
 	* objElement can be jQuery object or selector
 	*/
 	this.setAction = function(action, objElement, allowMultiple){
+		
+		if(g_vars.trace_debug == true){
+			trace("set action: "+action);
+		}
 		
 		if(g_vars.is_inited == false)
 			throw new Error("Widget not inited");
@@ -1986,7 +2011,7 @@ function UERemoteWidgets(){
 	 * do api action
 	 */
 	this.doAction = function(action, arg1, arg2){
-				
+			
 		switch(action){
 			case "prev":
 			case "next":
@@ -2177,6 +2202,10 @@ function UERemoteWidgets(){
 	this.onWidgetInit = function(widgetID, func, options){
 		
 		try{
+			
+			if(g_vars.trace_debug == true){
+				trace("on widget init");
+			}
 						
 			if(!g_vars.funcOnInit){
 				
@@ -2193,9 +2222,15 @@ function UERemoteWidgets(){
 				g_vars.trace_debug = true;
 			
 			initGlobal(widgetID, t.onWidgetInit);
-						
-			if(g_vars.is_inited == false)
+			
+			if(g_vars.is_inited == false){
+				
+				if(g_vars.trace_debug == true){
+					trace(widgetID+" not inited yet, waiting for parent init");
+				}
+				
 				return(false);
+			}
 			
 			//show id's on the widgets
 			if(g_vars.debug_show_ids == true){
@@ -2205,7 +2240,7 @@ function UERemoteWidgets(){
 				displayTextOnWidget(g_objWidget, g_objWidget.attr("id"), "debug");
 			}
 			
-			if(g_vars.debug_connect == true)
+			if(g_vars.trace_debug == true)
 				trace("start debug - show connect");
 			
 			if(g_objParent.length > 1){
@@ -2219,10 +2254,11 @@ function UERemoteWidgets(){
 			//widget is inited
 						
 			onWidgetReady();
-			
+						
 			g_vars.funcOnInit(g_objWidget);
 			
 		}catch(message){
+			
 			
 			displayErrorMessage(message);
 			
@@ -2257,8 +2293,12 @@ function UERemoteWidgets(){
 		
 		var isInited = initAPI();
 		
-		if(isInited == false)
-			throw new Error("Sync Error - can't init api");
+		if(isInited == false){
+			
+			var widgetID = g_objParent.attr("id");
+			
+			throw new Error("Sync Error - can't init api for "+widgetID+", please check if the widget is inited and working.");
+		}
 		
 		g_vars.syncid = syncID;
 		

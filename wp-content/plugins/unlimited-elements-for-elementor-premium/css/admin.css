@@ -1289,36 +1289,36 @@ noimage:
 	max-width: 260px;
 }
 .unite-input-long {
-	width: 300px;
-	max-width: 300px;
+	width: 300px !important;
+	max-width: 300px !important;
 }
 .unite-input-alias {
-	width: 150px;
-	max-width: 150px;
+	width: 150px !important;
+	max-width: 150px !important;
 }
 .unite-input-number {
-	width: 100px;
-	max-width: 100px;
+	width: 100px !important;
+	max-width: 100px !important;
 }
 .unite-input-medium {
-	width: 150px;
-	max-width: 150px;
+	width: 150px !important;
+	max-width: 150px !important;
 }
 .unite-input-shortcode {
-	width: 180px;
-	max-width: 180px;
+	width: 180px !important;
+	max-width: 180px !important;
 }
 .unite-input-image {
-	width: 260px;
-	max-width: 260px;
+	width: 260px !important;
+	max-width: 260px !important;
 }
 .unite-input-path {
-	width: 500px;
-	max-width: 500px;
+	width: 500px !important;
+	max-width: 500px !important;
 }
 .unite-input-link {
-	width: 400px;
-	max-width: 400px;
+	width: 400px !important;
+	max-width: 400px !important;
 }
 
 .unite-input-small {

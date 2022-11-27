@@ -1,4 +1,4 @@
-//Unite Gallery, Version: 1.7.67, released 08 September 2022
+//Unite Gallery, Version: 1.7.69, released 20 September 2022
 
 //------ ug-common-libraries.js------ 
 
@@ -412,9 +412,7 @@ function UGFunctions(){
 	 */
 	this.addFullScreenChangeEvent = function(func){
 		
-		if(document["webkitCancelFullScreen"])
-			addEvent("webkitfullscreenchange",document,func);
-		else if(document["msExitFullscreen"])
+		if(document["msExitFullscreen"])
 			addEvent("MSFullscreenChange",document,func);
 		else if(document["mozCancelFullScreen"])
 			addEvent("mozfullscreenchange",document,func);
@@ -5370,6 +5368,9 @@ function UGPanelsBase(){
 		else
 			var enable_handle = g_options.gridpanel_enable_handle;
 		
+		if(g_options.gallery_theme == "default")
+			enable_handle = false;
+		
 		// add handle
 		if (enable_handle == true) {
 			g_objHandle = new UGPanelHandle();
@@ -5692,25 +5693,31 @@ function UGPanelHandle(){
 	this.setHtml = function(){
 		
 		var orientation = g_panel.getOrientation();
-				
+			
 		var classTip = "ug-panel-handle-tip";
+		
+		var svgArrow;
 		
 		switch(orientation){
 			case "right":
-				classTip += " ug-handle-tip-left";				
-			break;
-			case "left":
+				classTip += " ug-handle-tip-left";
+				svgArrow = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="3.5 0.5 9.5 6 3.5 11.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
+				break;
+				case "left":
 				classTip += " ug-handle-tip-right";
+				svgArrow = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="7.5 0.5 3.5 6 7.5 11.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
 			break;
 			case "bottom":
-				classTip += " ug-handle-tip-top";				
-			break;
-			case "top":
+				classTip += " ug-handle-tip-top";		
+				svgArrow = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="0.5 3.5 6 9.5 11.5 3.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
+				break;
+				case "top":
 				classTip += " ug-handle-tip-bottom";
+				svgArrow = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="0.5 8.5 6 2.5 11.5 8.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
 			break;
 		}
 		
-		g_objPanel.append("<div class='"+classTip+" ug-skin-" + g_options.panel_handle_skin + "'></div>");
+		g_objPanel.append("<div class='"+classTip+" ug-skin-" + g_options.panel_handle_skin + "'>" + svgArrow + "</div>");
 		g_objHandleTip = g_objPanel.children(".ug-panel-handle-tip");
 	}
 	
@@ -6052,6 +6059,9 @@ function UGStripPanel() {
 
 			var arrowPrevClass = "ug-strip-arrow-left";
 			var arrowNextClass = "ug-strip-arrow-right";
+			var svgArrowPrev = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="7.5 0.5 3.5 6 7.5 11.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
+			var svgArrowNext = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="12px" height="12px" viewBox="0 0 12 12"><g stroke-width="1" transform="translate(0, 0)"><polyline points="4.5 0.5 8.5 6 4.5 11.5" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></polyline></g></svg>';
+			
 			if (g_options.strippanel_vertical_type == true) {
 				arrowPrevClass = "ug-strip-arrow-up";
 				arrowNextClass = "ug-strip-arrow-down";
@@ -6059,10 +6069,10 @@ function UGStripPanel() {
 
 			g_objPanel.append("<div class='ug-strip-arrow " + arrowPrevClass
 					+ " ug-skin-" + g_options.strippanel_buttons_skin
-					+ "'><div class='ug-strip-arrow-tip'></div></div>");
+					+ "'><div class='ug-strip-arrow-tip'>" + svgArrowPrev + "</div></div>");
 			g_objPanel.append("<div class='ug-strip-arrow " + arrowNextClass
 					+ " ug-skin-" + g_options.strippanel_buttons_skin
-					+ "'><div class='ug-strip-arrow-tip'></div></div>");
+					+ "'><div class='ug-strip-arrow-tip'>" + svgArrowNext + "</div></div>");
 
 		}
 		
@@ -6088,6 +6098,15 @@ function UGStripPanel() {
 			g_objPanel.css("background-color",
 					g_options.strippanel_background_color);
 
+		if(g_options.strippanel_enable_handle == false)
+			return(false);
+			
+		var	g_objHandle = g_objPanel.find('.ug-panel-handle-tip');
+
+		// set panel background color
+		if (g_options.strippanel_background_color != "")
+		g_objHandle.css("background-color",
+					g_options.strippanel_background_color);
 	}
 
 	/**
@@ -12907,7 +12926,9 @@ function UGSlider(){
 		  slider_links_newpage: false,					//open the slide link in new page
 		  
 		  slider_enable_bullets: false,					//enable the bullets onslider element
-		  slider_bullets_skin: "",						//skin of the bullets, if empty inherit from gallery skin
+		  slider_bullets_size: "",						//size of the bullets, if empty inherit from css
+		  slider_bullets_color: "",						//color of the bullets, if empty inherit from css
+		  slider_bullets_color_reverse: false,						//bullets_color_reverse: false		//color of the bullets, reverse mode: active is transparent, others are filled
 		  slider_bullets_space_between: -1,				//set the space between bullets. If -1 then will be set default space from the skins
 		  slider_bullets_align_hor:"center",			//left, center, right - bullets horizontal align
 		  slider_bullets_align_vert:"bottom",			//top, middle, bottom - bullets vertical algin
@@ -13025,7 +13046,9 @@ function UGSlider(){
 		if(g_options.slider_enable_bullets == true){
 			g_objBullets = new UGBullets();
 			var bulletsOptions = {
-					bullets_skin: g_options.slider_bullets_skin,
+					bullets_size: g_options.slider_bullets_size,
+					bullets_color: g_options.slider_bullets_color,
+					bullets_color_reverse: g_options.slider_bullets_color_reverse,
 					bullets_space_between: g_options.slider_bullets_space_between
 			}
 			g_objBullets.init(g_gallery, bulletsOptions);
@@ -13104,9 +13127,6 @@ function UGSlider(){
 		//set skins:
 		var globalSkin = galleryOptions.gallery_skin;
 		
-		if(g_options.slider_bullets_skin == "")
-			g_options.slider_bullets_skin = globalSkin;
-		
 		if(g_options.slider_arrows_skin == "")
 			g_options.slider_arrows_skin = globalSkin;
 		
@@ -13135,6 +13155,7 @@ function UGSlider(){
 	function getHtmlSlide(loaderClass, numSlide){
 		
 		var classVideoplay = "ug-type-square";
+		var svgVideoplay = '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_19_2)"><path d="M28 15.998C28 15.346 27.682 14.734 27.146 14.36L7.146 0.360047C6.538 -0.0679528 5.738 -0.115953 5.076 0.224047C4.414 0.570047 4 1.25205 4 1.99805V30C4 30.746 4.414 31.43 5.076 31.774C5.738 32.114 6.536 32.066 7.146 31.638L27.146 17.638C27.682 17.266 28 16.654 28 16.002C28 16 28 16 28 15.998C28 16 28 16 28 15.998Z" fill="white"/></g><defs><clipPath id="clip0_19_2"><rect width="32" height="32" fill="white"/></clipPath></defs></svg>';
 		if(g_options.slider_videoplay_button_type == "round")
 			classVideoplay = "ug-type-round";
 		
@@ -13142,7 +13163,7 @@ function UGSlider(){
 		html += "<div class='ug-slide-wrapper ug-slide"+numSlide+"'>";
 		html += "<div class='ug-item-wrapper'></div>";
 		html += "<div class='ug-slider-preloader "+loaderClass+"'></div>";
-		html += "<div class='ug-button-videoplay "+classVideoplay+"' style='display:none'></div>";
+		html += "<div class='ug-button-videoplay "+classVideoplay+"' style='display:none'>" + svgVideoplay + "</div>";
 		html += "</div>";
 		
 		return(html);
@@ -13185,12 +13206,18 @@ function UGSlider(){
 		
 		//add play button
 		if(g_options.slider_enable_play_button == true){
-			html += "<div class='ug-slider-control ug-button-play ug-skin-"+g_options.slider_play_button_skin+"'></div>";
+
+			var svgPlayButton = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><path fill="#ffffff" d="M14,7.999c0-0.326-0.159-0.632-0.427-0.819l-10-7C3.269-0.034,2.869-0.058,2.538,0.112C2.207,0.285,2,0.626,2,0.999v14.001c0,0.373,0.207,0.715,0.538,0.887c0.331,0.17,0.73,0.146,1.035-0.068l10-7C13.841,8.633,14,8.327,14,8.001C14,8,14,8,14,7.999C14,8,14,8,14,7.999z"></path></g></svg>';
+
+			html += "<div class='ug-slider-control ug-button-play ug-skin-"+g_options.slider_play_button_skin+"'>" + svgPlayButton + "</div>";
 		}
 		
 		//add fullscreen button
 		if(g_options.slider_enable_fullscreen_button == true){
-			html += "<div class='ug-slider-control ug-button-fullscreen ug-skin-"+g_options.slider_fullscreen_button_skin+"'></div>";
+
+			var svgFullscreenButton = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="10.5,0.5 15.5,0.5 15.5,5.5 "></polyline><polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="0.5,10.5 0.5,15.5 5.5,15.5 "></polyline><line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="15.5" y1="0.5" x2="11.5" y2="4.5"></line><line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="4.5" y1="11.5" x2="0.5" y2="15.5"></line><polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="5.5,0.5 0.5,0.5 0.5,5.5 "></polyline><line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="0.5" y1="0.5" x2="4.5" y2="4.5"></line><polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,10.5 15.5,15.5 10.5,15.5 "></polyline><line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="11.5" y1="11.5" x2="15.5" y2="15.5"></line><circle fill="#ffffff" cx="8" cy="8" r="2" data-cap="butt" data-color="color-2" data-stroke="none"></circle></g></svg>';
+
+			html += "<div class='ug-slider-control ug-button-fullscreen ug-skin-"+g_options.slider_fullscreen_button_skin+"'>" + svgFullscreenButton + "</div>";
 		}
 		
 		
@@ -16302,9 +16329,11 @@ function UGBullets(){
 	};
 	
 	var g_options = {
-		bullets_skin: "",					//bullets_skin: ""		//skin of the bullets, if empty inherit from gallery skin
+		bullets_size: "",					//default: 15	- size of the bullets, if empty inherit from css
+		bullets_color: "",					//defualt: #ffffff - color of the bullets, if empty inherit from css
+		bullets_color_reverse: false,					//bullets_color_reverse: false		//color of the bullets, reverse mode: active is transparent, others are filled
 		bullets_addclass: "",					//bullets object class addition
-		bullets_space_between:-1			//set the space between bullets. If -1 then will be set default space from the skins
+		bullets_space_between:-1			//set the space between bullets. If -1 then will be set default space from the css
 	}
 	
 	
@@ -16329,9 +16358,70 @@ function UGBullets(){
 		g_temp.isInited = true;
 		g_options = jQuery.extend(g_options, customOptions);
 		
-		if(g_options.bullets_skin == "")
-			g_options.bullets_skin = g_options.gallery_skin;
+	}
+
+	/**
+	 * set width of the bullet
+	 */
+	function setBulletSize(){
+
+		if (g_options.bullets_size != ""){
+			g_objBullets.children(".ug-bullet").css({
+				"width" : g_options.bullets_size + 'px',
+				"height" : g_options.bullets_size + 'px',			
+			});
+		}
 		
+	}
+
+	/**
+	 * set bg color of the bullet
+	 */
+	function setBulletBgColor(bullet){
+
+		var isReverseModeActive = g_options.bullets_color_reverse;
+
+		//check if revercs color mode is active
+		if(isReverseModeActive == true){
+
+			if(g_options.bullets_color == ""){
+
+				var defaultBulletColor = bullet.css("background-color");
+
+				g_objBullets.children(".ug-bullet").css({
+					"background-color" : defaultBulletColor,
+					"border-color" : defaultBulletColor		
+				});		
+				
+				bullet.css({"background-color" : 'transparent'});		
+	
+				//exit function
+				return(false);
+
+			}			
+			
+			g_objBullets.children(".ug-bullet").css({
+				"background-color" : g_options.bullets_color,
+				"border-color" : g_options.bullets_color		
+			});		
+			
+			bullet.css({"background-color" : 'transparent'});		
+
+			//exit function
+			return(false);
+		}
+
+		//if reverse color mode is disactive
+		if(g_options.bullets_color == "")
+		return(false);
+
+		g_objBullets.children(".ug-bullet").css({
+			"background-color" : '',
+			"border-color" : g_options.bullets_color		
+		});
+		
+		bullet.css({"background-color" : g_options.bullets_color});		
+
 	}
 	
 	/**
@@ -16359,6 +16449,9 @@ function UGBullets(){
 			if(objBullet.length)
 				g_bulletWidth = objBullet.width();
 		}
+
+		setBulletSize();
+		
 	}
 
 	/**
@@ -16387,7 +16480,7 @@ function UGBullets(){
 		if(g_options.bullets_addclass != "")
 			addClass = " " + g_options.bullets_addclass;
 			
-		var html = "<div class='ug-slider-control ug-bullets ug-skin-"+g_options.bullets_skin + addClass+"'>";
+		var html = "<div class='ug-slider-control ug-bullets ug-skin-"+ addClass+"'>";
 		
 		html += "</div>";
 		
@@ -16398,6 +16491,7 @@ function UGBullets(){
 		setHtmlBullets();
 		
 		initEvents();
+
 	}	
 	
 	
@@ -16425,6 +16519,7 @@ function UGBullets(){
 		var index = objBullet.index();
 			
 		jQuery(t).trigger(t.events.BULLET_CLICK, index);
+		
 	}
 	
 	
@@ -16468,6 +16563,12 @@ function UGBullets(){
 		bullet.addClass("ug-bullet-active");
 		
 		g_activeIndex = index;
+
+		if(!bullet.hasClass("ug-bullet-active"))
+		return(false)
+
+		setBulletBgColor(bullet);
+		
 	}
 
 	
@@ -19253,10 +19354,19 @@ function UGYoutubeAPI(){
 		if(t.isPlayerReady() == false)
 			return(false);
 		
+		if(!g_player)
+			return(false);
+		
 		if(isAutoplay && isAutoplay == true)
 			g_player.loadVideoById(videoID, 0, "large");
-		else
+		else{
+			
+			if(typeof g_player.cueVideoById == "undefined")
+				return(false);
+			
 			g_player.cueVideoById(videoID, 0, "large");
+		}
+		
 	}
 	
 	
@@ -21190,10 +21300,9 @@ function UniteGalleryMain(){
 	 */
 	function onFullScreenChange(){
 		
-		
 		var isFullscreen = g_functions.isFullScreen();
 		var event = isFullscreen ? t.events.ENTER_FULLSCREEN:t.events.EXIT_FULLSCREEN; 
-
+		
 		 var fullscreenID = g_functions.getGlobalData("fullscreenID");
 		 
 		 //check if this gallery was affected
@@ -21208,7 +21317,7 @@ function UniteGalleryMain(){
 		 }
 
 		 g_objGallery.trigger(event);
-		 
+
 		 onGalleryResized();
 	}
 	
@@ -21620,14 +21729,27 @@ function UniteGalleryMain(){
 		//register button as a unite gallery belong
 		objButton.data("ug-button", true);
 
+		//get svg of a not fullscreen icon
+		var svgSmallscreenButton = objButton.html();
+		
 		g_functions.setButtonOnTap(objButton, t.toggleFullscreen);
 		
 		g_objGallery.on(t.events.ENTER_FULLSCREEN,function(){
+			
 			objButton.addClass("ug-fullscreenmode");
+
+			//set svg icon for fullscreen mode
+			var svgFullscreenButton = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_23_15)"><path d="M15.7799 4.88073L13.945 3.08257L15.7799 1.24771C16.0734 0.954129 16.0734 0.513762 15.7799 0.220184C15.4863 -0.0733945 15.0459 -0.0733945 14.7523 0.220184L12.9542 2.01835L11.156 0.220184C11.0092 0.0733945 10.789 0.0733945 10.6422 0.220184C10.5689 0.293578 10.5322 0.366973 10.5322 0.440367L9.72482 5.87156C9.68812 6.09174 9.8716 6.27523 10.0551 6.27523C10.0918 6.27523 10.0918 6.27523 10.1285 6.27523L15.5597 5.50459C15.7432 5.46789 15.89 5.2844 15.8533 5.10092C15.8533 5.02752 15.8166 4.95413 15.7799 4.88073Z" fill="white"/><path d="M10.4955 15.5596C10.5321 15.7431 10.7156 15.8899 10.8991 15.8532C10.9725 15.8532 11.0459 15.8165 11.1193 15.7431L12.9175 13.945L14.7156 15.7431C15.0092 16.0367 15.4496 16.0367 15.7432 15.7431C16.0367 15.4495 16.0367 15.0092 15.7432 14.7156L13.945 12.9174L15.7432 11.1193C15.8899 10.9725 15.8899 10.7523 15.7432 10.6055C15.6698 10.5321 15.5964 10.4954 15.523 10.4954L10.0918 9.72478C9.90829 9.68808 9.68811 9.83487 9.68811 10.0184C9.68811 10.0551 9.68811 10.0917 9.68811 10.1284L10.4955 15.5596Z" fill="white"/><path d="M0.220184 11.1192L2.01835 12.9174L0.220184 14.7156C-0.0733945 15.0091 -0.0733945 15.4495 0.220184 15.7431C0.513762 16.0367 0.954129 16.0367 1.24771 15.7431L3.04587 13.9449L4.84404 15.7431C4.99083 15.8899 5.21101 15.8899 5.3578 15.7431C5.43119 15.6697 5.46789 15.5963 5.46789 15.5229L6.23853 10.0917C6.27523 9.90823 6.12844 9.68805 5.94495 9.68805C5.90826 9.68805 5.87156 9.68805 5.83486 9.68805L0.440367 10.4954C0.256881 10.5321 0.110092 10.7156 0.146789 10.8991C0.110092 10.9725 0.146789 11.0458 0.220184 11.1192Z" fill="white"/><path d="M1.24771 0.220184C0.954129 -0.0733945 0.513762 -0.0733945 0.220184 0.220184C-0.0733945 0.513762 -0.0733945 0.954129 0.220184 1.24771L2.01835 3.04587L0.220184 4.84404C0.0733945 4.99083 0.0733945 5.21101 0.220184 5.3578C0.256881 5.46789 0.330275 5.50459 0.440367 5.50459L5.87156 6.27523C6.05505 6.31193 6.27523 6.16514 6.27523 5.98165C6.27523 5.94495 6.27523 5.90826 6.27523 5.87156L5.50459 0.440367C5.46789 0.256881 5.2844 0.110092 5.10092 0.146789C5.02752 0.146789 4.95413 0.183486 4.88073 0.256881L3.08257 2.01835L1.24771 0.220184Z" fill="white"/></g><defs><clipPath id="clip0_23_15"><rect width="16" height="16" fill="white"/></clipPath></defs></svg>';
+
+			objButton.html(svgFullscreenButton);
 		});
 		
 		g_objGallery.on(t.events.EXIT_FULLSCREEN,function(){
+
 			objButton.removeClass("ug-fullscreenmode");
+
+			//return regular mode svg icon
+			objButton.html(svgSmallscreenButton);
 		});
 				
 	}
@@ -21652,15 +21774,28 @@ function UniteGalleryMain(){
 		
 		//register button as a unite gallery belong
 		objButton.data("ug-button", true);
+
+		//get svgPlayBtn
+		var svgPlayButton = objButton.html();
 		
 		g_functions.setButtonOnClick(objButton, t.togglePlayMode);
 		
 		g_objGallery.on(t.events.START_PLAY,function(){
+
 			objButton.addClass("ug-stop-mode");
+
+			//add pause svg button
+			var svgPauseButton = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><path fill="#ffffff" d="M5,1H2C1.4,1,1,1.4,1,2v12c0,0.6,0.4,1,1,1h3c0.6,0,1-0.4,1-1V2C6,1.4,5.6,1,5,1z"></path><path fill="#ffffff" d="M14,1h-3c-0.6,0-1,0.4-1,1v12c0,0.6,0.4,1,1,1h3c0.6,0,1-0.4,1-1V2C15,1.4,14.6,1,14,1z"></path></g></svg>';
+
+			objButton.html(svgPauseButton);
 		});
 		
 		g_objGallery.on(t.events.STOP_PLAY, function(){
+
 			objButton.removeClass("ug-stop-mode");
+
+			//replace pause button with play button
+			objButton.html(svgPlayButton);
 		});
 		
 	}
@@ -22040,7 +22175,7 @@ function UniteGalleryMain(){
 	 * expand gallery to body size
 	 */
 	function toFakeFullScreen(){
-		
+	
 		jQuery("body").addClass("ug-body-fullscreen");
 		g_objWrapper.addClass("ug-fake-fullscreen");
 		
@@ -22073,7 +22208,7 @@ function UniteGalleryMain(){
 		
 		if(g_temp.isFakeFullscreen == true)
 			return(true);
-		
+			
 		if(g_functions.isFullScreen() == true)
 			return(true);
 		
@@ -22123,7 +22258,7 @@ function UniteGalleryMain(){
 	 * toggle fullscreen
 	 */
 	this.toggleFullscreen = function(){
-		
+	
 		if(t.isFullScreen() == false){
 			t.toFullScreen();
 		}else{

@@ -18,6 +18,7 @@ class HelperProviderCoreUC_EL{
 	public static $arrGlobalColors;
 	private static $arrCacheElementorTemplate;
 	private static $arrPostContentCache = array();
+	private static $arrTemplateContentCache = array();
 	
 	
 	/**
@@ -511,7 +512,7 @@ class HelperProviderCoreUC_EL{
 		
 		if(isset(self::$arrPostContentCache[$postID]))
 			return(self::$arrPostContentCache[$postID]);
-					
+		
 		$elementorTemplateType = get_post_meta($postID,"_elementor_template_type",true);
 		
 		//not elementor - regular content
@@ -568,10 +569,16 @@ class HelperProviderCoreUC_EL{
 	
 	/**
 	 * put elementor template
+	 * protection against inifinite loop
 	 */
 	public static function putElementorTemplate($templateID){
 		
+		if(isset(self::$arrTemplateContentCache[$templateID]))
+			return(self::$arrTemplateContentCache[$templateID]);
+		
 		$output = self::getElementorTemplate($templateID);
+		
+		self::$arrTemplateContentCache[$templateID] = $output;
 		
 		echo $output;
 	}
@@ -632,10 +639,30 @@ class HelperProviderCoreUC_EL{
 			
 		$GLOBALS['post'] = $post;
 		
+		//set elementor document
+		
+		$isElementorProActive = HelperUC::isElementorProActive();
+		
+		$documentToChange = null;
+		
+		if($isElementorProActive == true){
+			
+			$currentDocument = \ElementorPro\Plugin::elementor()->documents->get_current();
+			
+			$documentToChange = \Elementor\Plugin::$instance->documents->get( $postID );
+			
+			
+			//do it from elementorIntegrate class
+			//\ElementorPro\Plugin::elementor()->documents->switch_to_document( $document );
+			
+		}
+		
 		GlobalsUnlimitedElements::$renderingDynamicData = array(
 			"post_id"=>$postID, 
 			"template_id" => $templateID, 
-			"widget_id"=>$widgetID);
+			"widget_id"=>$widgetID,
+			"doc_to_change"=>$documentToChange
+		);
 		
 		if($listingType == "jet")
 			$htmlTemplate = self::getJetTemplateListingItem($templateID, $post);
@@ -649,15 +676,22 @@ class HelperProviderCoreUC_EL{
 		$dest = "{$source} uc-post-$postID";
 		
 		$htmlTemplate = str_replace($source, $dest, $htmlTemplate);
-				
+		
 		echo $htmlTemplate;
 		
 		GlobalsUnlimitedElements::$renderingDynamicData = null;
 		
 		//restore the original queried object
+		
 		$wp_query->queried_object = $originalQueriedObject;
 		$wp_query->queried_object_id = $originalQueriedObjectID;
 		$GLOBALS['post'] = $originalPost;
+
+		if($isElementorProActive == true){
+			
+			\ElementorPro\Plugin::elementor()->documents->switch_to_document( $currentDocument );
+		}
+		
 		
 	}
 	
@@ -682,7 +716,7 @@ class HelperProviderCoreUC_EL{
 					
 		$elementID = $element->get_ID();
   		$dynamicSettings = $element->get_settings( '__dynamic__' );
-		  		
+		
   		if(empty($dynamicSettings))
   			return(false);
   		  			
@@ -765,7 +799,7 @@ class HelperProviderCoreUC_EL{
   		$strOutput = "<style type='text/css'>\n";
   		$strOutput .= $strStyle;
   		$strOutput .= "</style>";
-
+		
   		echo $strOutput;		
 	}
 	

@@ -2044,7 +2044,13 @@ class UniteCreatorParamsProcessor extends UniteCreatorParamsProcessorWork{
 			return(array());
 		}
 		
-		$query = new WP_Query($args);
+		$query = new WP_Query();
+		
+		do_action("ue_before_custom_posts_query", $query);
+				
+		$query->query($args);
+		
+		do_action("ue_after_custom_posts_query", $query);
 		
 		//custom posts debug
 		

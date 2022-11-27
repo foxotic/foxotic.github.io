@@ -11,21 +11,25 @@ class GlobalsUnlimitedElements{
 	
 	public static $enableInsideNotification = true;
 	
-	public static $insideNotificationText = "Unlock Access To All PRO Widgets and Features.  <a href='https://unlimited-elements.com/pricing/' target='_blank'>Upgrade Now</a> ";
+	public static $insideNotificationText = "BLACK FRIDAY SALE STARTS NOW! <br> Grab the PRO version for 50% off. <br> <a href='https://unlimited-elements.com/pricing/' target='_blank'>Get It Now</a> ";
+	//public static $insideNotificationText = "Unlock Access To All PRO Widgets and Features.  <a href='https://unlimited-elements.com/pricing/' target='_blank'>Upgrade Now</a> ";
 	public static $insideNotificationUrl = "https://unlimited-elements.com/pricing/";
 	
-	public static $showAdminNotice = false;
+	public static $showAdminNotice = true;
 	
 	public static $arrAdminNotice = array(
-		"id"=>"doubly1",
-		"text"=>"Buy Doubly Now",
-		//"banner"=>"birthday-3-banner.png",
-		"type"=>"simple",
-		//"type"=>"banner",	//advanced,banner
+		"id"=>"black_friday_22",
+		"text"=>"temp text",		//real text goes from event
+		"banner"=>"ue-black-friday-banner.jpg",
+		//"type"=>"simple",
+		"color"=>"info",		//info , error, doubly, warning
+		"type"=>"banner",	//advanced,banner
 		//"button_text"=>"Show Me More",
-		//"button_link"=>"https://doubly.pro",
+		"button_link"=>"https://unlimited-elements.com/pricing/",
 		"expire"=>"",
-		"free_only"=>false,
+		"free_only"=>true,
+		//"condition"=>"no_doubly",
+		"internal_only"=>true,		//show only in ue page
 		"no-notice-wrap"=>false
 	);
 	
@@ -86,12 +90,63 @@ class GlobalsUnlimitedElements{
    	
    	
    	/**
+   	 * set doubly notice text
+   	 */
+   	private static function setDoublyNoticeText(){
+   		
+   		$urlInstallDoubly = UniteFunctionsWPUC::getInstallPluginLink("doubly");
+   				
+   		$urlImage = GlobalsUC::$urlPluginImages."logo-circle.svg";
+   		
+		$textDoubly = "
+			<div class='uc-notice-wrapper'>
+			<div class='uc-notice-left'>
+				<img src='{$urlImage}' width='100'>
+			</div>
+			<div class='uc-notice-right'>
+				<div class='uc-notice-header'>Live Copy Paste from Unlimited Elements</div>
+				
+				<div class='uc-notice-middle'>
+					Did you know that now you can copy fully designed sections from Unlimited Elements to your website for FREE? <br> 
+					If you want to try then install our new plugin called Doubly. <br>
+				</div>
+				
+				<a class='uc-notice-button button button-primary' href='{$urlInstallDoubly}'>Install Doubly Now</a>
+			</div>
+			</div>
+		";
+   		
+   		self::$arrAdminNotice["text"] = $textDoubly;
+   		
+   	}
+   	
+   	
+   	/**
+   	 * on admin init
+   	 */
+   	public static function onAdminInit(){
+		
+   		if(self::$showAdminNotice == false)
+   			return(false);
+   		
+   		self::setDoublyNoticeText();
+   			
+   	}
+   	
+   	
+   	/**
    	 * init globals
    	 */
    	public static function initGlobals(){
    		
+   		//remove me
+   		//if(GlobalsUC::$inDev == true)
+   			//self::$showAdminNotice = true;
+   		
    		self::$urlTemplatesList = admin_url("edit.php?post_type=elementor_library&tabs_group=library");
 		
+   		add_action("init",array("GlobalsUnlimitedElements", "onAdminInit"));
+   		
    		
    	}
    	

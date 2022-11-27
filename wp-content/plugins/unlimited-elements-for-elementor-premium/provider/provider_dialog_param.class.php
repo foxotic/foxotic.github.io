@@ -56,6 +56,8 @@ class UniteCreatorDialogParam extends UniteCreatorDialogParamWork{
 		$this->arrParams[] = self::PARAM_BORDER_DIMENTIONS;
 		$this->arrParams[] = self::PARAM_CSS_FILTERS;
 		$this->arrParams[] = self::PARAM_HOVER_ANIMATIONS;
+		$this->arrParams[] = self::PARAM_POST_SELECT;
+		$this->arrParams[] = self::PARAM_TERM_SELECT;
 		$this->arrParams[] = self::PARAM_SPECIAL;
 		
 		$this->arrParams = $this->filterMainParams($this->arrParams);

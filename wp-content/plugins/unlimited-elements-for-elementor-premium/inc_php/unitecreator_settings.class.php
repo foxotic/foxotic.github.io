@@ -560,6 +560,25 @@ class UniteCreatorSettingsWork extends UniteSettingsAdvancedUC{
 		return($options);
 	}
 	
+	/**
+	 * add items image size setting
+	 */
+	private function addItemsImageSizeSetting($name, $param){
+		
+		$title = UniteFunctionsUC::getVal($param, "title");
+		
+		$arrSizes = UniteFunctionsWPUC::getArrThumbSizes();
+		
+		$params = array();
+		$params["origtype"] = UniteCreatorDialogParam::PARAM_DROPDOWN;
+		$params["label_block"] = true;
+		
+		$arrSizes = array_flip($arrSizes);
+		
+		$this->addSelect($name."_size", $arrSizes, $title, "medium_large", $params);
+		
+	}
+	
 	
 	/**
 	 * add special param
@@ -569,9 +588,26 @@ class UniteCreatorSettingsWork extends UniteSettingsAdvancedUC{
 		$attributeType = UniteFunctionsUC::getVal($param, "attribute_type");
 		
 		switch($attributeType){
+			case "non":
+			case "none":
+			break;
 			case "entrance_animation":
 				
 				UniteCreatorEntranceAnimations::addSettings($this, $name, $param);
+				
+			break;
+			case "items_image_size":
+				
+				$this->addItemsImageSizeSetting($name, $param);
+				
+			break;
+			case "schema":
+
+				$arrParam = array();
+				$arrParam["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;   
+				$arrParam["description"] = UniteFunctionsUC::getVal($param, "description");   
+				
+				$this->addRadioBoolean($name."_enable", $param["title"],false,"Yes","No",$arrParam);
 				
 			break;
 			default:

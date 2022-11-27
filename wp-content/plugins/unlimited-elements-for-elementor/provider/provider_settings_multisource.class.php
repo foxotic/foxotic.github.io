@@ -18,7 +18,7 @@ class UniteCreatorSettingsMultisource{
 	private $arrInstaFields;
 	private $paramsItems;
 	
-	const TYPE_JSONCSV = "jsoncsv";
+	const TYPE_JSONCSV = "json_csv";
 	const TYPE_REPEATER = "repeater";
 	const TYPE_POSTS = "posts";
 	const TYPE_TERMS = "terms";
@@ -169,12 +169,12 @@ class UniteCreatorSettingsMultisource{
 		if($isAcfExists == true)
 			$metaRepeaterTitle = __("ACF Cutom Field", "unlimited-elements-for-elementor");
 		
-		$arrSource["repeater"] = $metaRepeaterTitle;
-		$arrSource["json_csv"] = __("JSON or CSV", "unlimited-elements-for-elementor");
-		$arrSource["terms"] = __("Terms", "unlimited-elements-for-elementor");
-		$arrSource["users"] = __("Users", "unlimited-elements-for-elementor");
-		$arrSource["menu"] = __("Menu", "unlimited-elements-for-elementor");
-
+		$arrSource[self::TYPE_REPEATER] = $metaRepeaterTitle;
+		$arrSource[self::TYPE_JSONCSV] = __("JSON or CSV", "unlimited-elements-for-elementor");
+		$arrSource[self::TYPE_TERMS] = __("Terms", "unlimited-elements-for-elementor");
+		$arrSource[self::TYPE_USERS] = __("Users", "unlimited-elements-for-elementor");
+		$arrSource[self::TYPE_MENU] = __("Menu", "unlimited-elements-for-elementor");
+		
 		$hasInstagram = HelperProviderCoreUC_EL::isInstagramSetUp();
 		
 		if($hasInstagram)
@@ -184,8 +184,6 @@ class UniteCreatorSettingsMultisource{
 		$isWooActive = UniteCreatorWooIntegrate::isWooActive();
 		if($isWooActive == true)
 			$arrSource["products"] = __("Products", "unlimited-elements-for-elementor");
-						
-		
 		*/
 		
 		$arrSource = array_flip($arrSource);
@@ -241,15 +239,25 @@ class UniteCreatorSettingsMultisource{
 		
 		//--------- h3 before meta ---------- 
 		
-		$conditionMeta = array($name."_source"=>array(self::TYPE_POSTS, self::TYPE_TERMS, self::TYPE_USERS, self::TYPE_MENU));
-				
+		
 		
 		$params = array();
 		$params["origtype"] = UniteCreatorDialogParam::PARAM_HR;
-		$params["elementor_condition"] = $conditionMeta;
 		
 		$this->settings->addHr($name."_hr_before_debug",$params);
 
+		//--------- debug - show csv example ---------- 
+		
+		$conditionCsv = array($name."_source"=>self::TYPE_JSONCSV);
+		
+		$params = array();
+		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
+		$params["description"] = __("Here you can show the example data and test it in the textarea", "unlimited-elements-for-elementor");
+		$params["elementor_condition"] = $conditionCsv;
+		
+		$this->settings->addRadioBoolean($name."_show_example_jsoncsv", __("Show Example JSON and CSV Data", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
+		
+		
 		//--------- debug input data ---------- 
 		
 		$params = array();
@@ -257,14 +265,16 @@ class UniteCreatorSettingsMultisource{
 		//$params["description"] = __("Show the current object (posts, terms etc) raw input data", "unlimited-elements-for-elementor");
 		
 		$this->settings->addRadioBoolean($name."_show_input_data", __("Debug - Show Input Data", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
-		
+				
 		
 		//--------- debug meta - for objects---------- 
+		
+		$conditionMeta = array($name."_source"=>array(self::TYPE_POSTS, self::TYPE_TERMS, self::TYPE_USERS, self::TYPE_MENU, self::TYPE_REPEATER));
+		
 		
 		$params = array();
 		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
 		//$params["description"] = __("Show the current object (posts, terms etc) meta fields, turn off it after choose the right one", "unlimited-elements-for-elementor");
-		
 		
 		$params["elementor_condition"] = $conditionMeta;
 		
@@ -407,7 +417,10 @@ class UniteCreatorSettingsMultisource{
 		else
 			$text = __("ACF Field From Post", "unlimited-elements-for-elementor");
 		
-		$this->settings->addPostIDSelect($name."_repeater_post", $text, $condition, "single");
+		$conditionRepeaterPost = $condition;
+		$conditionRepeaterPost[$name."_repeater_location"] = "selected_post";
+		
+		$this->settings->addPostIDSelect($name."_repeater_post", $text, $conditionRepeaterPost, "single");
 		
 
 		//--------- h3 before meta ---------- 
@@ -425,24 +438,6 @@ class UniteCreatorSettingsMultisource{
 			
 			$this->putParamConnector_regular($name, $itemParam, $condition, self::TYPE_REPEATER);
 		}
-
-		//--------- h3 before meta ---------- 
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_HR;
-		$params["elementor_condition"] = $condition;
-		
-		$this->settings->addHr($name."_hr_before_debug_current_meta",$params);
-		
-		
-		//--------- debug meta ---------- 
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
-		$params["description"] = __("Show the current post meta fields, turn off it after choose the right one", "unlimited-elements-for-elementor");
-		$params["elementor_condition"] = $condition;
-		
-		$this->settings->addRadioBoolean($name."_show_current_meta", __("Debug - Show Current Meta", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
 		
 	}
 	
@@ -455,19 +450,63 @@ class UniteCreatorSettingsMultisource{
 	private function addMultisourceConnectors_jsonCsv($name, $arrIncludedAttributes){
 								
 		$condition = array($name."_source"=>"json_csv");
+
+		//-------------- csv location ----------------
 		
+		$params = array();
+		$params["origtype"] = UniteCreatorDialogParam::PARAM_DROPDOWN;
+		$params["elementor_condition"] = $condition;
+		
+		$text = __("JSON or CSV Location", "unlimited-elements-for-elementor");
+		
+		$arrLocations = array();
+		$arrLocations["textarea"] = __("Dynamic Textarea", "unlimited-elements-for-elementor");
+		$arrLocations["url"] = __("Url", "unlimited-elements-for-elementor");
+		
+		$arrLocations = array_flip($arrLocations);
+		
+		$this->settings->addSelect($name."_json_csv_location", $arrLocations, $text, "textarea", $params);
 		
 		//-------------- dynamic field ----------------
-				
+		
+		$conditionField = $condition;
+		$conditionField[$name."_json_csv_location"] = "textarea";
+		
 		$params = array();
 		$params["origtype"] = UniteCreatorDialogParam::PARAM_TEXTAREA;
-		$params["elementor_condition"] = $condition;
+		$params["elementor_condition"] = $conditionField;
 		$params["description"] = __("Put some JSON data or CSV data of array with the items, or choose from dynamic field", "unlimited-elements-for-elementor");;
 		$params["add_dynamic"] = true;
 		
 		$text = __("JSON or CSV Items Data", "unlimited-elements-for-elementor");
 		
 		$this->settings->addTextBox($name."_json_csv_dynamic_field", "", $text, $params);
+		
+		//-------------- csv url ----------------
+		
+		$conditionUrl = $condition;
+		$conditionUrl[$name."_json_csv_location"] = "url";
+		
+		$params = array();
+		$params["origtype"] = UniteCreatorDialogParam::PARAM_TEXTFIELD;
+		$params["elementor_condition"] = $conditionUrl;
+		$params["description"] = __("Enter url of the the file or webhook. inside or outside of the website", "unlimited-elements-for-elementor");
+		$params["placeholder"] = "Example: https://yoursite.com/yourfile.json";
+		$params["add_dynamic"] = true;
+		$params["label_block"] = true;
+		
+		$text = __("Url with the JSON or CSV", "unlimited-elements-for-elementor");
+		
+		$this->settings->addTextBox($name."_json_csv_url", "", $text, $params);
+		
+		
+		//--------- h3 before connectors ---------- 
+		
+		$params = array();
+		$params["origtype"] = UniteCreatorDialogParam::PARAM_HR;
+		$params["elementor_condition"] = $condition;
+		
+		$this->settings->addHr($name."_hr_before_connectors",$params);
 		
 		
 		// --- items source select 
@@ -476,33 +515,6 @@ class UniteCreatorSettingsMultisource{
 			$this->putParamConnector_regular($name, $itemParam, $condition, self::TYPE_JSONCSV);
 		}
 		
-		
-		//--------- h3 before meta ---------- 
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_HR;
-		$params["elementor_condition"] = $condition;
-		
-		$this->settings->addHr($name."_hr_before_debug_jsoncsv",$params);
-		
-		
-		//--------- debug json csv ---------- 
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
-		$params["description"] = __("Debug the dynamic field data, turn off it after choose the right one", "unlimited-elements-for-elementor");
-		$params["elementor_condition"] = $condition;
-		
-		$this->settings->addRadioBoolean($name."_debug_jsoncsv_data", __("Debug Dynamic Field Data", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
-
-		//--------- show example ---------- 
-		
-		$params = array();
-		$params["origtype"] = UniteCreatorDialogParam::PARAM_RADIOBOOLEAN;
-		$params["description"] = __("Here you can show the example data and test it in the textarea", "unlimited-elements-for-elementor");
-		$params["elementor_condition"] = $condition;
-		
-		$this->settings->addRadioBoolean($name."_show_example_jsoncsv", __("Show Example JSON and CSV Data", "unlimited-elements-for-elementor"), false, "Yes", "No", $params);
 		
 		
 	}

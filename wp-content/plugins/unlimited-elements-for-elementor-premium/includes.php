@@ -12,8 +12,8 @@ if(!defined('UNLIMITED_ELEMENTS_INC'))
 defined('UNLIMITED_ELEMENTS_INC') or die('Restricted access');
 
 if(!defined("UNLIMITED_ELEMENTS_VERSION"))
-	define("UNLIMITED_ELEMENTS_VERSION", "1.5.29");
-
+	define("UNLIMITED_ELEMENTS_VERSION", "1.5.40");
+ 
 $currentFile = __FILE__;
 $currentFolder = dirname($currentFile);
 $folderIncludesMain = $currentFolder."/inc_php/";
@@ -51,6 +51,7 @@ require_once $folderIncludesMain . 'unitecreator_addon.class.php';
 require_once GlobalsUC::$pathProvider . 'provider_addon.class.php';
 require_once $folderIncludesMain . 'unitecreator_params_processor.class.php';
 require_once GlobalsUC::$pathProvider . 'provider_params_processor.class.php';
+require_once GlobalsUC::$pathProvider . 'provider_params_processor_multisource.class.php';
 require_once $folderIncludesMain . 'unitecreator_addons.class.php';
 require_once $folderIncludesMain . 'unitecreator_helper.class.php';
 require_once $folderIncludesMain . 'unitecreator_helperhtml.class.php';
